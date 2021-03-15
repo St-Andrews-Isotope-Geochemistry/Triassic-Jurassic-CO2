@@ -71,7 +71,7 @@ initial_carbonate_chemistry.assignToAll("salinity",35);
 initial_carbonate_chemistry.assignToAll("oceanic_pressure",0);
 initial_carbonate_chemistry.assignToAll("atmospheric_pressure",1);
 initial_carbonate_chemistry.assignToAll("calcium",17);
-initial_carbonate_chemistry.assignToAll("magnesium",20);
+initial_carbonate_chemistry.assignToAll("magnesium",28);
 
 % Create a MyAMI object
 myami = MyAMI.MyAMI("Precalculated",true);
@@ -124,7 +124,7 @@ conditions.assignToAll("salinity",35);
 conditions.assignToAll("oceanic_pressure",0);
 conditions.assignToAll("atmospheric_pressure",1);
 conditions.assignToAll("calcium",17);
-conditions.assignToAll("magnesium",20);
+conditions.assignToAll("magnesium",28);
 
 % Calculate pKb
 initial_boron.collate("pKb").calculate();
@@ -281,7 +281,7 @@ for evolution_index = 1:size(co2_evolutions,2)
     co2_evolutions(:,evolution_index).collate("carbonate_chemistry").collate("conditions").assignToAll("oceanic_pressure",0);
     co2_evolutions(:,evolution_index).collate("carbonate_chemistry").collate("conditions").assignToAll("atmospheric_pressure",0);
     co2_evolutions(:,evolution_index).collate("carbonate_chemistry").collate("conditions").assignToAll("calcium",17);
-    co2_evolutions(:,evolution_index).collate("carbonate_chemistry").collate("conditions").assignToAll("magnesium",20);
+    co2_evolutions(:,evolution_index).collate("carbonate_chemistry").collate("conditions").assignToAll("magnesium",28);
     
     co2_evolutions(:,evolution_index).collate("carbonate_chemistry").assignToEach("alkalinity",interpolated_alkalinity(evolution_index,:));
     co2_evolutions(:,evolution_index).collate("carbonate_chemistry").collate("equilibrium_coefficients").assignToAll("MyAMI",myami);

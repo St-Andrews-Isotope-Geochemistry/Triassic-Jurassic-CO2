@@ -8,6 +8,7 @@ independent("temperature_change") = data{3}.temperature_change;
 independent("initial_temperature") = data{4}.initial_temperature;
 independent("saturation_state") = data{5}.saturation_state;
 independent("co2") = data{6}.co2;
+independent("epsilon") = data{7}.epsilon;
 
 pH_difference = containers.Map();
 pH_difference("calcium") = data{1}.pH_difference;
@@ -16,6 +17,7 @@ pH_difference("temperature_change") = data{3}.pH_difference;
 pH_difference("initial_temperature") = data{4}.pH_difference;
 pH_difference("saturation_state") = data{5}.pH_difference;
 pH_difference("co2") = data{6}.pH_difference;
+pH_difference("epsilon") = data{7}.pH_difference;
 
 colour_map = get(gca,'ColorOrder');
 % colour_map = jet(6);
@@ -26,6 +28,7 @@ colours("temperature_change") = colour_map(3,:);
 colours("initial_temperature") = colour_map(4,:);
 colours("saturation_state") = colour_map(5,:);
 colours("co2") = colour_map(6,:);
+colours("epsilon") = colour_map(7,:);
 
 %%
 pH_difference_limits = [-0.8,-0.2];
@@ -57,8 +60,13 @@ co2_axis = axes();
 plot(independent("co2")*1e6,pH_difference("co2"),'Color',colours("co2"),'LineWidth',2,'Parent',co2_axis);
 xlim([min(independent("co2")),max(independent("co2"))]);
 
+epsilon_axis = axes();
+plot(independent("epsilon"),pH_difference("epsilon"),'Color',colours("epsilon"),'LineWidth',2,'Parent',epsilon_axis);
+xlim([min(independent("epsilon")),max(independent("epsilon"))]);
+
+
 original_position = get(ca_axis,"Position");
-all_axes = [ca_axis,mg_axis,temperature_change_axis,initial_temperature_axis,saturation_state_axis,co2_axis];
+all_axes = [ca_axis,mg_axis,temperature_change_axis,initial_temperature_axis,saturation_state_axis,co2_axis,epsilon_axis];
 for current_axis = 2:numel(all_axes)
     set(all_axes(current_axis),'Color','None','YTick',[]);
 end

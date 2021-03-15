@@ -430,6 +430,74 @@ after_pH = after.collate("carbonate_chemistry").collate("pH").collate("pValue");
 
 pH_difference("co2") = after_pH-before_pH;
 
+%% Epsilon
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
+
+temperature = 21.4; % From bulk temperatures
+salinity = 35; % Assumed
+pressure = 0; % Assumed?
+ca = 17; % Horita
+mg = 28; % Horita
+
+epsilons = [27.2-(0.6*3):0.2:27.2+(0.6*3)];
+
+%
+background_data = boron_data(1:9,:);
+background_d11B4 = nanmean(background_data.d11B);
+
+perturbation_data = boron_data(10:end,:);
+perturbation_d11B4_minimum = nanmin(perturbation_data.d11B);
+
+d11B4_change = background_d11B4-perturbation_d11B4_minimum;
+
+% Process with original bulk temperature for comparison
+initial = BuCC.d11BCO2().create(numel(epsilons));
+initial.collate("species_calibration").collate("d11B_measured").assignToAll("value",background_d11B4);
+
+initial.collate("boron").collate("pH").assignToAll("pValue",NaN);
+initial.collate("boron").assignToEach("epsilon",epsilons);
+initial.collate("boron").collate("d11B_sw").assignToAll("value",NaN);
+
+cc = initial.collate("carbonate_chemistry");
+cc.assignToAll("temperature",temperature);
+cc.assignToAll("salinity",salinity);
+cc.assignToAll("oceanic_pressure",pressure);
+cc.assignToAll("atmospheric_pressure",1);
+cc.assignToAll("calcium",ca);
+cc.assignToAll("magnesium",mg);
+
+initial.collate("carbonate_chemistry").collate("atmospheric_co2").assignToAll("partial_pressure",co2_minimum);
+initial.collate("carbonate_chemistry").assignToAll("saturation_state",saturation_state_maximum);
+
+initial.calculate();
+
+%
+after = BuCC.d11BCO2().create(numel(epsilons));
+after.collate("species_calibration").collate("d11B_measured").assignToAll("value",perturbation_d11B4_minimum);
+
+after.collate("boron").collate("pH").assignToAll("pValue",NaN);
+after.collate("boron").assignToEach("epsilon",epsilons);
+after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
+
+cc = after.collate("carbonate_chemistry");
+cc.assignToAll("temperature",temperature);
+cc.assignToAll("salinity",salinity);
+cc.assignToAll("oceanic_pressure",pressure);
+cc.assignToAll("atmospheric_pressure",1);
+cc.assignToAll("calcium",ca);
+cc.assignToAll("magnesium",mg);
+
+after.collate("carbonate_chemistry").assignToEach("alkalinity",initial.collate("carbonate_chemistry").collate("alkalinity"));
+
+after.calculate();
+
+%
+before_pH = initial.collate("carbonate_chemistry").collate("pH").collate("pValue");
+after_pH = after.collate("carbonate_chemistry").collate("pH").collate("pValue");
+
+pH_difference("epsilon") = after_pH-before_pH;
+
 %% Saving
 output_file = fopen("./../Data/Minimum_pH_Variation.json","w");
 to_encode = [];
@@ -465,6 +533,12 @@ fprintf(output_file,json+",");
 to_encode = [];
 to_encode.co2 = co2s;
 to_encode.pH_difference = pH_difference("co2");
+json = jsonencode(to_encode);
+fprintf(output_file,json+",");
+
+to_encode = [];
+to_encode.epsilon = epsilons;
+to_encode.pH_difference = pH_difference("epsilon");
 json = jsonencode(to_encode);
 fprintf(output_file,json+"]");
 
