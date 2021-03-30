@@ -13,11 +13,11 @@ clear
 saturation_state_maximum = 10.7; % From Ridgwell modelling
 co2_minimum = 500; % From Witkowski
 
-temperature = 21.4; % From bulk temperatures
+temperature = 14.8; % From bulk temperatures
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = 17; % Horita
-mg = 28; % Horita
+ca = 1; % Horita
+mg = 60; % Horita
 
 %% Using csys
 % Run random numbers just to get kspc
@@ -75,3 +75,9 @@ carbonate_chemistry_check.calculate();
 
 %% Difference
 pH_difference = abs(maximum_pH_csys-maximum_pH_cc);
+
+%%
+disp("At:")
+disp("Ca = "+ca);
+disp("Mg = "+mg);
+disp("Maximum pH = "+maximum_pH_cc);

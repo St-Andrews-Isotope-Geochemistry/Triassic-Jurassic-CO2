@@ -15,15 +15,18 @@
 clear
 
 %% Load in data
-temperature_data = readtable("./../Data/TJ_Temperature.xlsx");
+% temperature_data = readtable("./../Data/TJ_Temperature.xlsx");
 boron_data = readtable("./../Data/TJ_d11B_pH.xlsx");
 
 % Segregate into prepeturbation and during/after perturbation
 background_data = boron_data(1:9,:);
 background_d11B4 = nanmean(background_data.d11B);
+background_d11B4_uncertainty = nanstd(background_data.d11B);
 
 perturbation_data = boron_data(10:end,:);
 perturbation_d11B4 = nanmin(perturbation_data.d11B);
+
+d11B4_change = background_d11B4-perturbation_d11B4;
 
 %% Set up distributions and sample them
 % Choose the number of statistical samples
@@ -32,13 +35,14 @@ number_of_samples = 10000;
 % Set up a distribution for each variable
 % Uncertainties should be tuned to represent 2sigma uncertainty
 % If not known, be generous
-initial_co2_distribution = Geochemistry_Helpers.Distribution(0:100e-6:1000e-6,"Gaussian",[500e-6,100e-6]).normalise();
+initial_co2_distribution = Geochemistry_Helpers.Distribution(0:10e-6:1000e-6,"Gaussian",[500e-6,50e-6]).normalise();
 initial_saturation_distribution = Geochemistry_Helpers.Distribution(6:0.1:15,"Gaussian",[10.7,0.15]).normalise();
-initial_temperature_distribution = Geochemistry_Helpers.Distribution(0:2:40,"Gaussian",[21.4,10]).normalise();
-temperature_change_distribution = Geochemistry_Helpers.Distribution(-10:5:10,"Gaussian",[8,2]).normalise();
-ca_distribution = Geochemistry_Helpers.Distribution(0:0.5:20,"Flat",[1,17]).normalise();
-mg_distribution = Geochemistry_Helpers.Distribution(26:0.5:51,"Flat",[28,50]).normalise();
-epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:30,"Gaussian",[27.2+0.6*3,0.3]).normalise();
+initial_temperature_distribution = Geochemistry_Helpers.Distribution(0:0.01:30,"Gaussian",[14.8+3.3*2,1.65]).normalise();
+temperature_change_distribution = Geochemistry_Helpers.Distribution(0:0.1:10,"Gaussian",[4.2-1.1*2,0.55]).normalise();
+ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",[8,10]).normalise();
+mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",[50,52]).normalise();
+epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:31,"Gaussian",[27.2+0.6*2,0.3]).normalise();
+initial_d11B_distribution = Geochemistry_Helpers.Distribution(0:0.1:40,"Gaussian",[background_d11B4,background_d11B4_uncertainty]).normalise();
 
 % Create samplers for those distributions
 initial_co2_sampler = Geochemistry_Helpers.Sampler(initial_co2_distribution,"latin_hypercube");
@@ -48,6 +52,7 @@ temperature_change_sampler = Geochemistry_Helpers.Sampler(temperature_change_dis
 ca_sampler = Geochemistry_Helpers.Sampler(ca_distribution,"latin_hypercube");
 mg_sampler = Geochemistry_Helpers.Sampler(mg_distribution,"latin_hypercube");
 epsilon_sampler = Geochemistry_Helpers.Sampler(epsilon_distribution,"latin_hypercube");
+initial_d11B_sampler = Geochemistry_Helpers.Sampler(initial_d11B_distribution,"latin_hypercube");
 
 % Get samples
 initial_co2_sampler.getSamples(number_of_samples).shuffle();
@@ -57,6 +62,7 @@ temperature_change_sampler.getSamples(number_of_samples).shuffle();
 ca_sampler.getSamples(number_of_samples).shuffle();
 mg_sampler.getSamples(number_of_samples).shuffle();
 epsilon_sampler.getSamples(number_of_samples).shuffle();
+initial_d11B_sampler.getSamples(number_of_samples).shuffle();
 
 % Make sure we don't pick 0 CO2 - could also find a better distribution
 % than Gaussian so this doesn't happen
@@ -67,7 +73,7 @@ initial_co2_sampler.samples(initial_co2_sampler.samples==0)=60e-6;
 initial = BuCC.d11BCO2().create(number_of_samples);
 
 % Assign all the necessary values
-initial.collate("species_calibration").collate("d11B_measured").assignToAll("value",background_d11B4);
+initial.collate("species_calibration").collate("d11B_measured").assignToEach("value",initial_d11B_sampler.samples);
 
 initial.collate("boron").collate("pH").assignToAll("pValue",NaN);
 initial.collate("boron").collate("d11B_sw").assignToAll("value",NaN);
@@ -93,7 +99,7 @@ initial.calculate();
 
 %% d11B_sw
 initial_d11B_sw = initial.collate("boron").collate("d11B_sw").collate("value");
-initial_d11B_sw_distribution = Geochemistry_Helpers.Distribution.fromSamples(0:0.1:40,initial_d11B_sw).normalise();
+initial_d11B_sw_distribution = Geochemistry_Helpers.Distribution.fromSamples((0:0.1:40)',initial_d11B_sw).normalise();
 
 % We also have a d11B_sw constraint from the range of measured d11B
 % So get the minimum and maximum
@@ -101,8 +107,8 @@ raw_d11B_minimum = min(boron_data.d11B);
 raw_d11B_maximum = max(boron_data.d11B);
 
 % And their uncertainties
-raw_d11B_minimum_uncertainty = boron_data.x2SE(boron_data.d11B==raw_d11B_minimum);
-raw_d11B_maximum_uncertainty = boron_data.x2SE(boron_data.d11B==raw_d11B_maximum);
+raw_d11B_minimum_uncertainty = boron_data.uncertainty(boron_data.d11B==raw_d11B_minimum);
+raw_d11B_maximum_uncertainty = boron_data.uncertainty(boron_data.d11B==raw_d11B_maximum);
 
 % Create distributions and samplers
 raw_d11B_minimum_distribution = Geochemistry_Helpers.Distribution(initial_d11B_sw_distribution.bin_edges,"Gaussian",[raw_d11B_minimum,raw_d11B_minimum_uncertainty]).normalise();
@@ -157,7 +163,7 @@ d11B_sw_from_minimum_maximum_distribution.plot("Color",[0.8,0.8,0]);
 after = BuCC.d11BCO2().create(number_of_samples);
 
 % Assign all the necessary variables
-after.collate("species_calibration").collate("d11B_measured").assignToAll("value",perturbation_d11B4);
+after.collate("species_calibration").collate("d11B_measured").assignToEach("value",initial_d11B_sampler.samples-d11B4_change);
 
 after.collate("boron").collate("pH").assignToAll("pValue",NaN);
 after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
@@ -198,6 +204,13 @@ pH_change_distribution = Geochemistry_Helpers.Distribution.fromSamples(-1:0.01:1
 pH_99 = pH_change_distribution.quantile(0.99);
 pH_95 = pH_change_distribution.quantile(0.95);
 pH_50 = pH_change_distribution.quantile(0.5);
+
+pH_initial_99 = pH_initial_distribution.quantile(0.99);
+pH_initial_95 = pH_initial_distribution.quantile(0.95);
+pH_initial_50 = pH_initial_distribution.quantile(0.5);
+
+d11Bsw_initial_50 = initial_d11B_sw_distribution.mean();
+d11Bsw_initial_uncertainty = initial_d11B_sw_distribution.standard_deviation();
 
 %% Plotting
 figure(1)
