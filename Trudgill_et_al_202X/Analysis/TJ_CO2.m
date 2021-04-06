@@ -25,8 +25,9 @@
 
 clear
 %%
+tic
 % Choose the number of statistical samples
-number_of_samples = 5000;
+number_of_samples = 10000;
 
 % Load in the data
 temperature_data = readtable("./../Data/TJ_Temperature.xlsx");
@@ -38,19 +39,19 @@ boron_data.age = boron_data.absolute_age;
 background_data = boron_data(1:9,:);
 
 perturbation_data = boron_data(10:end,:);
-perturbation_d11B4 = nanmin(perturbation_data.d11B);
+perturbation_d11B4 = min(perturbation_data.d11B,[],'omitnan');
 
 temperature_change = [0;diff(boron_data.hansen_temperature)];
 
 %% Distributions and Samplers
 % Generate distributions for each variable to represent uncertainties
-initial_co2_distribution = Geochemistry_Helpers.Distribution(0:100e-6:10000e-6,"Flat",[500e-6,5000e-6]).normalise();
+initial_co2_distribution = Geochemistry_Helpers.Distribution(0:100e-6:10000e-6,"Flat",[400e-6,5000e-6]).normalise();
 initial_omega_distribution = Geochemistry_Helpers.Distribution(0:0.1:12,"Flat",[5,10.7]).normalise();
-initial_temperature_distribution = Geochemistry_Helpers.Distribution(-10:5:60,"Flat",[10,30]).normalise();
-temperature_change_distribution = Geochemistry_Helpers.Distribution(0:0.1:10,"Gaussian",[4.2-1.1*2,0.55]).normalise();
-ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",[8,10]).normalise();
-mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",[50,52]).normalise();
-epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:31,"Gaussian",[27.2+0.6*2,0.3]).normalise();
+initial_temperature_distribution = Geochemistry_Helpers.Distribution(-10:5:60,"Gaussian",[14.8,3.3]).normalise();
+temperature_change_distribution = Geochemistry_Helpers.Distribution(0:0.1:10,"Gaussian",[4.2,1.1]).normalise();
+ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",[8,17]).normalise();
+mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",[28,52]).normalise();
+epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:31,"Gaussian",[27.2,0.6]).normalise();
 d11B_distributions = Geochemistry_Helpers.Distribution().create([height(boron_data),1]);
 
 for d11B_distribution_index = 1:numel(d11B_distributions)
@@ -138,12 +139,12 @@ initial_alkalinity_smoothed_sampler.getSamples(number_of_samples).shuffle();
 
 initial_alkalinity_smoothed_distribution.location = boron_data.age(1);
 
-initial_alkalinity_smoothed_distribution.plot();
+% initial_alkalinity_smoothed_distribution.plot();
 
 %% We have starting conditions but can refine d11B_sw
 % Collate the viable d11B_sw's and make a distribution
 initial_d11B_sw = initial_d11B_CO2.collate("boron").collate("d11B_sw").collate("value");
-initial_d11B_sw_distribution = Geochemistry_Helpers.Distribution.fromSamples(20:0.1:40,initial_d11B_sw).normalise();
+initial_d11B_sw_distribution = Geochemistry_Helpers.Distribution.fromSamples(0:0.1:60,initial_d11B_sw).normalise();
 
 % Smooth the distribution to deal with noise - and build a sampler
 initial_d11B_sw_smoothed = smooth(initial_d11B_sw_distribution.probabilities,12);
@@ -207,18 +208,18 @@ d11B_sw_mean = mean(combined_initial_d11B_sw_sampler.samples);
 d11B_sw_2std = 2*std(combined_initial_d11B_sw_sampler.samples);
 d11B_sw_95 = [combined_initial_d11B_sw_distribution.quantile(0.025),combined_initial_d11B_sw_distribution.quantile(0.975)];
 
-clf
-hold on
-d11B_sw_from_minimum_distribution.plot();
-d11B_sw_from_maximum_distribution.plot();
-d11B_sw_from_minimum_maximum_distribution.plot();
-initial_d11B_sw_smoothed_distribution.plot();
-combined_initial_d11B_sw_distribution.plot();
-
-xlabel("\delta^{11}B_{sw}");
-ylabel("Probability");
-
-legend(["From minimum","From maximum","Combined","From carbonate system","Overlap"],'Box','Off','Location','NorthWest');
+% clf
+% hold on
+% d11B_sw_from_minimum_distribution.plot();
+% d11B_sw_from_maximum_distribution.plot();
+% d11B_sw_from_minimum_maximum_distribution.plot();
+% initial_d11B_sw_smoothed_distribution.plot();
+% combined_initial_d11B_sw_distribution.plot();
+% 
+% xlabel("\delta^{11}B_{sw}");
+% ylabel("Probability");
+% 
+% legend(["From minimum","From maximum","Combined","From carbonate system","Overlap"],'Box','Off','Location','NorthWest');
 
 %% To calculate evolutions we need to know how alkalinity may have changed
 % Do this using Gaussian process
@@ -228,20 +229,20 @@ gp.observations = initial_alkalinity_smoothed_distribution;
 gp.runKernel([1700,0.1]);
 gp.getSamples(number_of_samples);
 
-figure(1);
-clf
-hold on;
-for observation_index = 1:numel(gp.observations)
-    plot([gp.observations(observation_index).location,gp.observations(observation_index).location],gp.observations(observation_index).mean()+2*[-gp.observations(observation_index).standard_deviation(),gp.observations(observation_index).standard_deviation()],'Color','k','LineWidth',1);
-    p(3) = plot(gp.observations(observation_index).location,gp.observations(observation_index).mean(),'Color','k','Marker','x');
-end
-plot(gp.queries.collate("location"),gp.queries.quantile(0.5),'Color','k','Marker','.');
-plot(gp.queries.collate("location"),gp.samples(1:10,:));
-
-clf
-hold on
-h = histogram(gp.samples(:,1),initial_alkalinity_smoothed_distribution.bin_edges,'Normalization','Probability');
-initial_alkalinity_smoothed_distribution.plot();
+% figure(1);
+% clf
+% hold on;
+% for observation_index = 1:numel(gp.observations)
+%     plot([gp.observations(observation_index).location,gp.observations(observation_index).location],gp.observations(observation_index).mean()+2*[-gp.observations(observation_index).standard_deviation(),gp.observations(observation_index).standard_deviation()],'Color','k','LineWidth',1);
+%     p(3) = plot(gp.observations(observation_index).location,gp.observations(observation_index).mean(),'Color','k','Marker','x');
+% end
+% plot(gp.queries.collate("location"),gp.queries.quantile(0.5),'Color','k','Marker','.');
+% plot(gp.queries.collate("location"),gp.samples(1:10,:));
+% 
+% clf
+% hold on
+% h = histogram(gp.samples(:,1),initial_alkalinity_smoothed_distribution.bin_edges,'Normalization','Probability');
+% initial_alkalinity_smoothed_distribution.plot();
 
 %% Now that we have alkalinity evolutions, combine with d11B evolution for CO2 evolution
 % Create a matrix to hold the data + do the calculations
@@ -278,6 +279,7 @@ co2_evolutions.calculate();
 d11B_out = co2_evolutions.collate("boron").collate("d11B_4").collate("value");
 pH = co2_evolutions.collate("carbonate_chemistry").collate("pH").collate("pValue");
 co2 = co2_evolutions.collate("carbonate_chemistry").collate("atmospheric_co2").collate("mole_fraction");
+saturation_state = co2_evolutions.collate("carbonate_chemistry").collate("saturation_state");
 
 % There needs to be some postprocessing
 % Sometimes (because of the uncertainties on each parameter) you can choose
@@ -292,46 +294,77 @@ for evolution_index = 1:size(co2,2)
     end
 end
 pH(isnan(co2)) = NaN;
+saturation_state(isnan(co2)) = NaN;
 
 %%
 pH_change = Geochemistry_Helpers.Distribution.fromSamples((0:0.01:3)',nanmean(pH(1:9,:))-nanmin(pH(10:end,:))).normalise();
-pH_change.plot();
+% pH_change.plot();
 
-pH_change.quantile(0.5)
-pH_change.standard_deviation()
+pH_change.quantile(0.5);
+pH_change.standard_deviation();
 
 co2_change = Geochemistry_Helpers.Distribution.fromSamples((0:100:10000)',abs(nanmean(co2(1:9,:))-nanmax(co2(10:end,:)))).normalise();
-co2_change.plot();
-xlabel("CO2 (ppm)");
-ylabel("Probability");
+% co2_change.plot();
+% xlabel("CO2 (ppm)");
+% ylabel("Probability");
 
 %%
 % If you want to subsample it can be done like this
-pH_subsample_boolean = repmat(co2(1,:)>200 & co2(1,:)<600,size(pH,1),1);
+pH_subsample_boolean = repmat(saturation_state(1,:)<12 & all(saturation_state<12) & pH(1,:)>8.0,size(pH,1),1);
 pH_subsample = reshape(pH(pH_subsample_boolean),22,[]);
 co2_subsample = reshape(co2(pH_subsample_boolean),22,[]);
-co2_subsample_change =  Geochemistry_Helpers.Distribution.fromSamples((0:100:100000)',abs(nanmean(co2_subsample(1:9,:))-nanmax(co2_subsample(10:end,:)))).normalise();
+co2_subsample_change =  Geochemistry_Helpers.Distribution.fromSamples((0:100:20000)',abs(nanmean(co2_subsample(1:9,:))-nanmax(co2_subsample(10:end,:)))).normalise();
+saturation_state_subsample = reshape(saturation_state(pH_subsample_boolean),22,[]);
 
-co2_subsample_change.quantile(0.5)
-co2_subsample_change.standard_deviation()*2
+co2_subsample_change.quantile(0.5);
+co2_subsample_change.standard_deviation()*2;
 
 %
 % If you want to subsample it can be done like this
-pH_subsample_boolean_2 = repmat(co2(1,:)>600 & co2(1,:)<1000,size(pH,1),1);
+pH_subsample_boolean_2 = repmat(saturation_state(1,:)<12 & all(saturation_state<12)  & pH(1,:)<8.0,size(pH,1),1);
 pH_subsample_2 = reshape(pH(pH_subsample_boolean_2),22,[]);
 co2_subsample_2 = reshape(co2(pH_subsample_boolean_2),22,[]);
-co2_subsample_2_change =  Geochemistry_Helpers.Distribution.fromSamples((0:100:10000)',abs(nanmean(co2_subsample_2(1:9,:))-nanmax(co2_subsample_2(10:end,:))));
+co2_subsample_2_change =  Geochemistry_Helpers.Distribution.fromSamples((0:100:20000)',abs(nanmean(co2_subsample_2(1:9,:))-nanmax(co2_subsample_2(10:end,:))));
 
-co2_subsample_2_change.quantile(0.5)
-co2_subsample_2_change.standard_deviation()*2
+
+co2_subsample_2_change.quantile(0.5);
+co2_subsample_2_change.standard_deviation()*2;
 
 %%
-figure(1);
-clf
-hold on
+% figure(1);
+% clf
+% hold on
+% 
+% plot(boron_data.absolute_age,co2_subsample,'b');
+% plot(boron_data.absolute_age,co2_subsample_2,'r');
+% 
+% set(gca,'XDir','Reverse');
+% ylim([0,10000]);
+% 
+% clf
+% hold on
+% co2_subsample_change.plot();
+% co2_subsample_2_change.plot();
+% 
+% l = legend([">8","<8"]);
+% title(l,'Initial pH');
+% 
+% 
+% ax = gca;
+% ax.XAxis.Exponent = 0;
+% 
+% xlabel("\DeltaCO2");
+% ylabel("Probability");
 
-plot(boron_data.absolute_age,co2_subsample,'b');
-plot(boron_data.absolute_age,co2_subsample_2,'r');
+toc
 
-set(gca,'XDir','Reverse');
-ylim([0,10000]);
+%%
+% figure(1);
+% clf
+% hold on
+% plot(boron_data.absolute_age,saturation_state_subsample);
+% plot(boron_data.absolute_age,median(saturation_state_subsample,2),'k','LineWidth',2);
+% set(gca,'XDir','Reverse');
+
+%%
+
