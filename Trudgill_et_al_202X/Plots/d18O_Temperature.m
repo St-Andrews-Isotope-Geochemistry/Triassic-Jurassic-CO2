@@ -1,6 +1,5 @@
 clear
-% data = readtable("./../Data/d18O_d13C","Sheet","Matlab");
-averaged = readtable("./../Data/d18O_d13C","Sheet","Averaged");
+averaged = readtable("./../Data/TJ_d11B_pH","Sheet","Matlab");
 
 %%
 age_midpoints = averaged.absolute_age(1:end-1) + diff(averaged.absolute_age);

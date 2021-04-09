@@ -1,0 +1,2 @@
+Maximum initial temperature = 14.8108 +- 3.3338°C
+Minimum temperature change = +4.1773 +- 1.0789°C

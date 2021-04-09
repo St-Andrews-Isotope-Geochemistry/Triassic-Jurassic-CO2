@@ -123,7 +123,7 @@ y_tick_locations = 400*2.^[-1,0,1,2,3,4,5];
 set(gca,'YTick',log2(y_tick_locations),'YTickLabels',num2str(y_tick_locations'),'YMinorTick','On');
 
 %% Extra plot for the distribution of CO2 change
-co2_change = max(evolutions.co2_subsample (10:end,:))-mean(evolutions.co2_subsample (1:9,:));
+co2_change = max(evolutions.co2_subsample(10:end,:))-mean(evolutions.co2_subsample (1:9,:));
 co2_change_distribution = Geochemistry_Helpers.Distribution.fromSamples(-1000:100:10000,co2_change).normalise();
 
 co2_change_quantiles = [co2_change_distribution.quantile(0.05),co2_change_distribution.quantile(0.5),co2_change_distribution.quantile(0.95)];
@@ -137,3 +137,29 @@ plot([co2_change_quantiles;co2_change_quantiles],[0;1],'k');
 ylim([0,max(co2_change_distribution.probabilities)]);
 xlabel("CO_2 (ppm)");
 ylabel("Probability");
+
+%% pH
+clf
+hold on
+high_initial_pH.pH_change = min(high_initial_pH.pH(10:end,:))-mean(high_initial_pH.pH(1:9,:));
+high_initial_pH.pH_change_distritbuion = Geochemistry_Helpers.Distribution.fromSamples(-2:0.01:1,high_initial_pH.pH_change);
+high_initial_pH.pH_change_distritbuion.plot();
+
+high_initial_pH.pH_change_distritbuion.quantile(0.95);
+high_initial_pH.pH_change_distritbuion.quantile(0.5);
+high_initial_pH.pH_change_distritbuion.standard_deviation();
+
+low_initial_pH.pH_change = min(low_initial_pH.pH(10:end,:))-mean(low_initial_pH.pH(1:9,:));
+low_initial_pH.pH_change_distritbuion = Geochemistry_Helpers.Distribution.fromSamples(-2:0.01:1,low_initial_pH.pH_change);
+low_initial_pH.pH_change_distritbuion.plot();
+
+low_initial_pH.pH_change_distritbuion.quantile(0.5);
+low_initial_pH.pH_change_distritbuion.standard_deviation();
+
+pH_changes = min(evolutions.pH_subsample(10:end,:))-mean(evolutions.pH_subsample(1:9,:));
+pH_change_distribution = Geochemistry_Helpers.Distribution.fromSamples(-2:0.01:1,pH_changes);
+pH_change_distribution.plot();
+
+pH_change_distritbuion.quantile(0.95);
+pH_change_distribution.quantile(0.5);
+pH_change_distribution.standard_deviation()*2
