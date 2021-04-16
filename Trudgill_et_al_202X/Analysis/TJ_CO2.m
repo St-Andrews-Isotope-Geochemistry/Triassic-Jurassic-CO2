@@ -51,7 +51,7 @@ initial_temperature_distribution = Geochemistry_Helpers.Distribution(-10:5:60,"G
 temperature_change_distribution = Geochemistry_Helpers.Distribution(0:0.1:10,"Gaussian",[4.2,1.1]).normalise();
 ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",[8,17]).normalise();
 mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",[28,52]).normalise();
-epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:31,"Gaussian",[27.2,0.6]).normalise();
+epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:31,"Gaussian",[27.2,0.3]).normalise();
 d11B_distributions = Geochemistry_Helpers.Distribution().create([height(boron_data),1]);
 
 for d11B_distribution_index = 1:numel(d11B_distributions)
