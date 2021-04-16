@@ -14,8 +14,8 @@
 % The results are then saved to a JSON file
 
 %% Load Data
-temperature_data = readtable("./../Data/TJ_Temperature.xlsx");
-boron_data = readtable("./../Data/TJ_d11B_pH.xlsx");
+temperature_data = readtable("./../../Data/TJ_Temperature.xlsx");
+boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
 
 % Create a map to hold the results
 pH_difference = containers.Map();
@@ -499,7 +499,7 @@ after_pH = after.collate("carbonate_chemistry").collate("pH").collate("pValue");
 pH_difference("epsilon") = after_pH-before_pH;
 
 %% Saving
-output_file = fopen("./../Data/Minimum_pH_Variation.json","w");
+output_file = fopen("./../../Data/Minimum_pH_Variation.json","w");
 to_encode = [];
 to_encode.calcium = cas;
 to_encode.pH_difference = pH_difference("calcium");

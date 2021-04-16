@@ -1,10 +1,10 @@
 clear
 
 %% Load data
-boron_data = readtable("./../Data/TJ_d11B_pH.xlsx");
+boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
 boron_data.age = boron_data.absolute_age;
 
-raw_evolutions = readmatrix("./../Data/TJ_CO2_Evolutions.csv");
+raw_evolutions = readmatrix("./../../Data/TJ_CO2_Evolutions.csv");
 reshaped_evolutions = reshape(raw_evolutions,[22,11,100000]);
 
 evolutions.pH = squeeze(reshaped_evolutions(:,1,:));
@@ -160,6 +160,6 @@ pH_changes = min(evolutions.pH_subsample(10:end,:))-mean(evolutions.pH_subsample
 pH_change_distribution = Geochemistry_Helpers.Distribution.fromSamples(-2:0.01:1,pH_changes);
 pH_change_distribution.plot();
 
-pH_change_distritbuion.quantile(0.95);
+pH_change_distribution.quantile(0.95);
 pH_change_distribution.quantile(0.5);
 pH_change_distribution.standard_deviation()*2

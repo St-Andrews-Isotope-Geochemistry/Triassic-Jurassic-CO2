@@ -1,6 +1,6 @@
 clear
-d18O_d13C = readtable("./../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab");
-d11B = readtable("./../Data/TJ_d11B_pH.xlsx","Sheet","Matlab");
+d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab");
+d11B = readtable("./../../Data/TJ_d11B_pH.xlsx","Sheet","Matlab");
 
 %% Anonymous functions
 oneil_calibration = @(d18O_ratio,seawater_d18O_ratio) ((((3.597122e-4)*log(d18O_ratio./seawater_d18O_ratio))+1.2194e-6).^(-0.5))-273.15;
@@ -74,19 +74,19 @@ minimum_temperature_change = maximum_initial_temperature-d11B.hansen_temperature
 minimum_temperature_change_uncertainty = d11B.hansen_temperature_uncertainty(d11B.d11B(10:end)==nanmin(d11B.d11B(10:end)));
 
 %% Save
-writematrix(["oneil_temperature","kim_oneil_temperature","hansen_temperature","anderson_arthur_temperature"],"./../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab","Range","F1");
-writematrix(["°C","°C","°C","°C"],"./../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab","Range","F2");
-writematrix(d18O_d13C{:,end-3:end},"./../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab","Range","F3");
+writematrix(["oneil_temperature","kim_oneil_temperature","hansen_temperature","anderson_arthur_temperature"],"./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab","Range","F1");
+writematrix(["°C","°C","°C","°C"],"./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab","Range","F2");
+writematrix(d18O_d13C{:,end-3:end},"./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab","Range","F3");
 
-writematrix(string(averaged.Properties.VariableNames),"./../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged","Range","A1");
-writematrix(["m","‰","‰","Myr","Ma","°C","°C","°C","°C","°C","°C","°C","°C"],"./../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged","Range","A2");
-writematrix(averaged{:,:},"./../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged","Range","A3");
+writematrix(string(averaged.Properties.VariableNames),"./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged","Range","A1");
+writematrix(["m","‰","‰","Myr","Ma","°C","°C","°C","°C","°C","°C","°C","°C"],"./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged","Range","A2");
+writematrix(averaged{:,:},"./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged","Range","A3");
 
-writematrix(["oneil_temperature","oneil_temperature_uncertainty","kim_oneil_temperature","kim_oneil_temperature_uncertainty","hansen_temperature","hansen_temperature_uncertainty","anderson_arthur_temperature","anderson_arthur_temperature_uncertainty"],"./../Data/TJ_d11B_pH.xlsx","Sheet","Matlab","Range","G1");
-writematrix(["°C","°C","°C","°C","°C","°C","°C","°C"],"./../Data/TJ_d11B_pH.xlsx","Sheet","Matlab","Range","G2");
-writematrix(d11B{:,end-7:end},"./../Data/TJ_d11B_pH.xlsx","Sheet","Matlab","Range","G3");
+writematrix(["oneil_temperature","oneil_temperature_uncertainty","kim_oneil_temperature","kim_oneil_temperature_uncertainty","hansen_temperature","hansen_temperature_uncertainty","anderson_arthur_temperature","anderson_arthur_temperature_uncertainty"],"./../../Data/TJ_d11B_pH.xlsx","Sheet","Matlab","Range","G1");
+writematrix(["°C","°C","°C","°C","°C","°C","°C","°C"],"./../../Data/TJ_d11B_pH.xlsx","Sheet","Matlab","Range","G2");
+writematrix(d11B{:,end-7:end},"./../../Data/TJ_d11B_pH.xlsx","Sheet","Matlab","Range","G3");
 
-maximum_initial_temperature_file = fopen("./../Data/Maximum_Initial_Temperature.txt","w");
+maximum_initial_temperature_file = fopen("./../../Data/Maximum_Initial_Temperature.txt","w");
 fprintf(maximum_initial_temperature_file,"Maximum initial temperature = "+num2str(maximum_initial_temperature_centre));
 fprintf(maximum_initial_temperature_file," +- "+num2str(maximum_initial_temperature_uncertainty));
 fprintf(maximum_initial_temperature_file,char(176)+"C"+newline);

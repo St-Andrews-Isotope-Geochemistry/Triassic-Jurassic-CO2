@@ -5,8 +5,8 @@
 clear
 
 %%
-temperature_data = readtable("./../Data/TJ_Temperature.xlsx");
-boron_data = readtable("./../Data/TJ_d11B_pH.xlsx");
+temperature_data = readtable("./../../Data/TJ_Temperature.xlsx");
+boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
 
 saturation_state_maximum = 10.7; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
@@ -18,8 +18,8 @@ ca = 17; % Horita
 mg = 28; % Horita
 
 %% Need to interpolate temperature onto the samples
-boron_data.temperature = interp1(temperature_data.depth,temperature_data.temperature,boron_data.Height_m_);
-boron_data.temperature_uncertainty = interp1(temperature_data.depth,temperature_data.temperature_uncertainty,boron_data.Height_m_);
+boron_data.temperature = interp1(temperature_data.depth,temperature_data.temperature,boron_data.height);
+boron_data.temperature_uncertainty = interp1(temperature_data.depth,temperature_data.temperature_uncertainty,boron_data.height);
 
 %%
 background_data = boron_data(1:9,:);

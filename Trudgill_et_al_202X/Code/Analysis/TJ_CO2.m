@@ -26,12 +26,13 @@
 clear
 %%
 tic
+data_directory = "./../../Data/";
 % Choose the number of statistical samples
 number_of_samples = 10000;
 
 % Load in the data
-temperature_data = readtable("./../Data/TJ_Temperature.xlsx");
-boron_data = readtable("./../Data/TJ_d11B_pH.xlsx");
+temperature_data = readtable(data_directory+"TJ_Temperature.xlsx");
+boron_data = readtable(data_directory+"TJ_d11B_pH.xlsx");
 
 boron_data.age = boron_data.absolute_age;
 

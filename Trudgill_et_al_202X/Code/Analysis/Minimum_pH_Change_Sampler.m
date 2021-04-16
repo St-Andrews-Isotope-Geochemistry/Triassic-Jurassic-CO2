@@ -15,8 +15,8 @@
 clear
 
 %% Load in data
-% temperature_data = readtable("./../Data/TJ_Temperature.xlsx");
-boron_data = readtable("./../Data/TJ_d11B_pH.xlsx");
+% temperature_data = readtable("./../../Data/TJ_Temperature.xlsx");
+boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
 
 % Segregate into prepeturbation and during/after perturbation
 background_data = boron_data(1:9,:);
