@@ -75,7 +75,7 @@ ylabel("\DeltapH");
 xlim([min(starting_pH),max(starting_pH)]);
 ylim([-1.5,0]);
 
-legend_handle = legend(["2 ‰","4 ‰","8 ‰","3.5126 ‰"],'Box','Off','Location','SouthEast');
+legend_handle = legend(["2 ‰","4 ‰","8 ‰","3.51 ‰"],'Box','Off','Location','SouthEast');
 title(legend_handle,'\delta^{11}B_4 change');
 
 subplot_handles(2) = subplot(2,1,2);
@@ -97,3 +97,6 @@ text(8.75,9000,char(949)+" = 27.2"+char(8240));
 text(8.63,7500,"\delta^{11}B_{sw} = 33.2"+char(8240));
 
 linkaxes(subplot_handles,"x");
+
+exportgraphics(gcf,"./../../Figures/Initial_pH_Delta_pH_Delta_CO2.png");
+

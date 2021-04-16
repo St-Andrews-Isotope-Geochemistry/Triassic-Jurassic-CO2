@@ -1,5 +1,5 @@
 clear
-averaged = readtable("./../Data/TJ_d11B_pH","Sheet","Matlab");
+averaged = readtable("./../../Data/TJ_d11B_pH","Sheet","Matlab");
 
 %%
 age_midpoints = averaged.absolute_age(1:end-1) + diff(averaged.absolute_age);
@@ -49,7 +49,7 @@ set(gca,"XDir","Reverse");
 
 legend_handle = legend([oneil_handle,kim_oneil_handle,hansen_handle,anderson_arthur_handle],["O'Neil","Kim + O'Neil","Hansen","Anderson+Arthur"],"Location","NorthWest","Box","Off");
 
-exportgraphics(gcf,"./../Plots/Age_Temperature_Calibrations.png");
+exportgraphics(gcf,"./../../Figures/Age_Temperature_Calibrations.png");
 
 
 figure(2);
@@ -74,4 +74,4 @@ ylabel("\DeltaTemperature ^{\circ}C");
 
 set(gca,"XDir","Reverse");
 
-exportgraphics(gcf,"./../Plots/Age_deltaTemperature_Calibrations.png");
+exportgraphics(gcf,"./../../Figures/Age_deltaTemperature_Calibrations.png");
