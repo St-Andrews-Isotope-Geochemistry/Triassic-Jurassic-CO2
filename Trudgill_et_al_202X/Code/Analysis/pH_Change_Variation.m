@@ -521,7 +521,7 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("epsilon") = pH_change;
 
 %% Saving
-output_file = fopen("./../../Data/Minimum_pH_Variation.json","w");
+output_file = fopen("./../../Data/pH_Change_Sensitivity.json","w");
 to_encode = [];
 to_encode.calcium = cas;
 to_encode.pH_difference = pH_difference("calcium");
