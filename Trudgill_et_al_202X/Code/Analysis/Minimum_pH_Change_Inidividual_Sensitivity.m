@@ -21,18 +21,19 @@ boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
 pH_difference = containers.Map();
 
 %% Ca
-saturation_state_maximum = (5+10.7)/2; % From Ridgwell modelling
-co2_minimum = (300e-6 + 700e-6)/2; % From Witkowski
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
+temperature = 21.4; % From bulk temperatures
+temperature_change = 2.0;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = (10+17)/2; % Horita
-mg = (28+52)/2; % Horita
-epsilon = 27.2;
+ca = 10; % Horita
+mg = 52; % Horita
+epsilon = 27.8;
 
-% For minimum 8-10, 8-17
-cas = [5:1:20];
+% For minimum 9-11, 8-17
+cas = 9:0.5:11;
 
 %
 background_data = boron_data(1:9,:);
@@ -73,7 +74,7 @@ after.collate("boron").assignToAll("epsilon",epsilon);
 after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
 
 cc = after.collate("carbonate_chemistry");
-cc.assignToAll("temperature",temperature);
+cc.assignToAll("temperature",temperature+temperature_change);
 cc.assignToAll("salinity",salinity);
 cc.assignToAll("oceanic_pressure",pressure);
 cc.assignToAll("atmospheric_pressure",1);
@@ -93,18 +94,19 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("calcium") = pH_change;
 
 %% Magnesium
-saturation_state_maximum = (5+10.7)/2; % From Ridgwell modelling
-co2_minimum = (500e-6 + 500e-6)/2; % From Witkowski
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
+temperature = 21.4; % From bulk temperatures
+temperature_change = 2.0;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = (10+17)/2; % Horita
-mg = (28+52)/2; % Horita
-epsilon = 27.2;
+ca = 10; % Horita
+mg = 52; % Horita
+epsilon = 27.8;
 
-% For minimum: 50-52, 28-52
-mgs = 24:1:54;
+% For minimum: 51-53, 28-52
+mgs = 51:0.5:53;
 
 %
 background_data = boron_data(1:9,:);
@@ -145,7 +147,7 @@ after.collate("boron").assignToAll("epsilon",epsilon);
 after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
 
 cc = after.collate("carbonate_chemistry");
-cc.assignToAll("temperature",temperature);
+cc.assignToAll("temperature",temperature+temperature_change);
 cc.assignToAll("salinity",salinity);
 cc.assignToAll("oceanic_pressure",pressure);
 cc.assignToAll("atmospheric_pressure",1);
@@ -165,19 +167,20 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("magnesium") = pH_change;
 
 %% Temperature change
-saturation_state_maximum = (5+10.7)/2; % From Ridgwell modelling
-co2_minimum = (500e-6 + 500e-6)/2; % From Witkowski
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
+temperature = 21.4; % From bulk temperatures
+temperature_change = 2.0;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = (10+17)/2; % Horita
-mg = (28+52)/2; % Horita
-epsilon = 27.2;
+ca = 10; % Horita
+mg = 52; % Horita
+epsilon = 27.8;
 
 % For minimum 2+-0.55 at 1sd, 4.2+-1.1 at 1sd
 initial_temperature = temperature;
-temperature_changes = 0.35:0.05:7.5;
+temperature_changes = 0.9:0.2:3.1;
 
 %
 background_data = boron_data(1:9,:);
@@ -238,18 +241,19 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("temperature_change") = pH_change;
 
 %% Temperature start
-saturation_state_maximum = (5+10.7)/2; % From Ridgwell modelling
-co2_minimum = (500e-6 + 500e-6)/2; % From Witkowski
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
+temperature = 21.4; % From bulk temperatures
+temperature_change = 2.0;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = (10+17)/2; % Horita
-mg = (28+52)/2; % Horita
-epsilon = 27.2;
+ca = 10; % Horita
+mg = 52; % Horita
+epsilon = 27.8;
 
 % For minimum 21.4+-1.65 at 1sd, 14.8+-3.3 at 1sd
-initial_temperatures = 4.9:0.1:26.4;
+initial_temperatures = 18.1:0.1:24.7;
 
 %
 background_data = boron_data(1:9,:);
@@ -290,7 +294,7 @@ after.collate("boron").assignToAll("epsilon",epsilon);
 after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
 
 cc = after.collate("carbonate_chemistry");
-cc.assignToEach("temperature",initial_temperatures);
+cc.assignToEach("temperature",initial_temperatures+temperature_change);
 cc.assignToAll("salinity",salinity);
 cc.assignToAll("oceanic_pressure",pressure);
 cc.assignToAll("atmospheric_pressure",1);
@@ -310,18 +314,19 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("initial_temperature") = pH_change;
 
 %% Saturation State
-saturation_state_maximum = (5+10.7)/2; % From Ridgwell modelling
-co2_minimum = (500e-6 + 500e-6)/2; % From Witkowski
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
+temperature = 21.4; % From bulk temperatures
+temperature_change = 2.0;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = (10+17)/2; % Horita
-mg = (28+52)/2; % Horita
-epsilon = 27.2;
+ca = 10; % Horita
+mg = 52; % Horita
+epsilon = 27.8;
 
 % For minimum 10.7+-0.15 at 1sd, 5-10.7 for central
-saturation_states = 4:0.1:11.5;
+saturation_states = 10.4:0.1:11;
 
 %
 background_data = boron_data(1:9,:);
@@ -362,7 +367,7 @@ after.collate("boron").assignToAll("epsilon",epsilon);
 after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
 
 cc = after.collate("carbonate_chemistry");
-cc.assignToAll("temperature",temperature);
+cc.assignToAll("temperature",temperature+temperature_change);
 cc.assignToAll("salinity",salinity);
 cc.assignToAll("oceanic_pressure",pressure);
 cc.assignToAll("atmospheric_pressure",1);
@@ -383,18 +388,19 @@ pH_difference("saturation_state") = pH_change;
 
 
 %% CO2
-saturation_state_maximum = (5+10.7)/2; % From Ridgwell modelling
-co2_minimum = (500e-6 + 500e-6)/2; % From Witkowski
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
+temperature = 21.4; % From bulk temperatures
+temperature_change = 2.0;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = (10+17)/2; % Horita
-mg = (28+52)/2; % Horita
-epsilon = 27.2;
+ca = 10; % Horita
+mg = 52; % Horita
+epsilon = 27.8;
 
 % For minimum 500e-6 +- 50e-6 at 1sd, 400e-6 - 5000e-6 for central
-co2s = 300e-6:50e-6:700e-6;
+co2s = 400e-6:50e-6:600e-6;
 
 %
 background_data = boron_data(1:9,:);
@@ -435,7 +441,7 @@ after.collate("boron").assignToAll("epsilon",epsilon);
 after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
 
 cc = after.collate("carbonate_chemistry");
-cc.assignToAll("temperature",temperature);
+cc.assignToAll("temperature",temperature+temperature_change);
 cc.assignToAll("salinity",salinity);
 cc.assignToAll("oceanic_pressure",pressure);
 cc.assignToAll("atmospheric_pressure",1);
@@ -456,18 +462,19 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("co2") = pH_change;
 
 %% Epsilon
-saturation_state_maximum = (5+10.7)/2; % From Ridgwell modelling
-co2_minimum = (500e-6 + 500e-6)/2; % From Witkowski
+saturation_state_maximum = 10.7; % From Ridgwell modelling
+co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
+temperature = 21.4; % From bulk temperatures
+temperature_change = 2.0;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
-ca = (10+17)/2; % Horita
-mg = (28+52)/2; % Horita
-epsilon = 27.2;
+ca = 10; % Horita
+mg = 52; % Horita
+epsilon = 27.8;
 
 % For minimum (27.2+0.3*2) +- 0.15 at 1sd and 27.2 +- 0.3 at 1sd for central
-epsilons = 26.3:0.1:28.9;
+epsilons = 27.5:0.1:28.1;
 
 %
 background_data = boron_data(1:9,:);
@@ -508,7 +515,7 @@ after.collate("boron").assignToEach("epsilon",epsilons);
 after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
 
 cc = after.collate("carbonate_chemistry");
-cc.assignToAll("temperature",temperature);
+cc.assignToAll("temperature",temperature+temperature_change);
 cc.assignToAll("salinity",salinity);
 cc.assignToAll("oceanic_pressure",pressure);
 cc.assignToAll("atmospheric_pressure",1);
@@ -528,7 +535,7 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("epsilon") = pH_change;
 
 %% Saving
-output_file = fopen("./../../Data/pH_Change_Sensitivity.json","w");
+output_file = fopen("./../../Data/Minimum_pH_Change_Individual_Sensitivity.json","w");
 to_encode = [];
 to_encode.calcium = cas;
 to_encode.pH_difference = pH_difference("calcium");
