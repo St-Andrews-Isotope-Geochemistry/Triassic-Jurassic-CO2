@@ -61,10 +61,37 @@ co2_change_uncertainties = [co2_change_distribution.quantile(0.025),co2_change_d
 temperature_change_median = temperature_change_distribution.median();
 temperature_change_uncertainties = [temperature_change_distribution.quantile(0.025),temperature_change_distribution.quantile(0.975)];
 
+%%
+climate_sensivity = temperature_change_sampler.samples./co2_change_sampler.samples;
+climate_sensitivity_distribution = Geochemistry_Helpers.Distribution().fromSamples(0:0.1:20,climate_sensivity).normalise();
+
+temperature_change_axis_matrix = repmat(temperature_change_distribution.bin_midpoints,numel(co2_change_distribution.probabilities),1);
+temperature_change_probability_matrix = repmat(temperature_change_distribution.probabilities,numel(co2_change_distribution.probabilities),1);
+
+co2_change_axis_matrix = repmat(co2_change_distribution.bin_midpoints,1,numel(temperature_change_distribution.probabilities));
+co2_change_probability_matrix = repmat(co2_change_distribution.probabilities,1,numel(temperature_change_distribution.probabilities));
+
+climate_sensitivity_joint = temperature_change_probability_matrix.*co2_change_probability_matrix;
+
+%%
+colourmap = Geochemistry_Helpers.Colour.Map("b",[Geochemistry_Helpers.Colour.Colour("Crimson","rgb",2),...
+                                                 Geochemistry_Helpers.Colour.Colour("Crimson","rgb",1.8),...
+                                                 Geochemistry_Helpers.Colour.Colour("Orange","rgb",1.2),...
+                                                 Geochemistry_Helpers.Colour.Colour("Khaki","rgb",0.5),...
+                                                 Geochemistry_Helpers.Colour.Colour("White","rgb",0)]);
+expanded_colourmap = colourmap.getColours(100);
+
 %% 
 figure(1);
 clf
 hold on
+
+pcolor_handle = pcolor(co2_change_axis_matrix,temperature_change_axis_matrix,climate_sensitivity_joint);
+colormap(expanded_colourmap.colours.rgb);
+set(pcolor_handle,'EdgeColor','None');
+
+xlabel("\DeltaCO_2 (doublings)");
+ylabel("\DeltaTemperature (^{\circ}C)");
 
 plot([0,5],[0,2.5],'--','Color',[0.5,0.5,0.5]);
 text(4.2,2.4,num2str(2.5/5)+" ^{\circ}C/doubling",'Rotation',20);
@@ -77,13 +104,8 @@ text(1.4,6.3,num2str(20/5)+" ^{\circ}C/doubling",'Rotation',65);
 plot([0,5],[0,40],'--','Color',[0.5,0.5,0.5]);
 text(0.6,6.2,num2str(40/5)+" ^{\circ}C/doubling",'Rotation',75);
 
-patch([co2_change_uncertainties(1),co2_change_uncertainties(1),co2_change_uncertainties(2),co2_change_uncertainties(2)],[temperature_change_uncertainties(1),temperature_change_uncertainties(2),temperature_change_uncertainties(2),temperature_change_uncertainties(1)],Geochemistry_Helpers.Colour.Colour("SteelBlue").rgb,'FaceAlpha',0.5);
-text(2.25,4.2,"TJ Range",'Color',Geochemistry_Helpers.Colour.Colour("Black").darken(1.1).saturate(1.1).rgb,'FontWeight','Bold')
-
-xlabel("\DeltaCO_2 (doublings)");
-ylabel("\DeltaTemperature (^{\circ}C)");
 
 xlim([0,5]);
 ylim([0,8]);
 
-exportgraphics(gcf,"./../../Figures/Climate_Sensitivity.png");
+exportgraphics(gcf,"./../../Figures/Climate_Sensitivity_Probabilistic.png");
