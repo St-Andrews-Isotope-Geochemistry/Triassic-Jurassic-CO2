@@ -72,6 +72,10 @@ co2_change_axis_matrix = repmat(co2_change_distribution.bin_midpoints,1,numel(te
 co2_change_probability_matrix = repmat(co2_change_distribution.probabilities,1,numel(temperature_change_distribution.probabilities));
 
 climate_sensitivity_joint = temperature_change_probability_matrix.*co2_change_probability_matrix;
+filter = ones(20,20);
+normalised_filter = filter./sum(filter);
+climate_sensitivity_joint_smooth = conv2(climate_sensitivity_joint,normalised_filter,'same');
+climate_sensitivity_joint_smooth_normalised = climate_sensitivity_joint_smooth./sum(climate_sensitivity_joint_smooth(:));
 
 %%
 colourmap = Geochemistry_Helpers.Colour.Map("b",[Geochemistry_Helpers.Colour.Colour("Crimson","rgb",2),...
@@ -86,9 +90,10 @@ figure(1);
 clf
 hold on
 
-pcolor_handle = pcolor(co2_change_axis_matrix,temperature_change_axis_matrix,climate_sensitivity_joint);
+pcolor_handle = pcolor(co2_change_axis_matrix,temperature_change_axis_matrix,climate_sensitivity_joint_smooth_normalised);
 colormap(expanded_colourmap.colours.rgb);
 set(pcolor_handle,'EdgeColor','None');
+shading interp;
 
 xlabel("\DeltaCO_2 (doublings)");
 ylabel("\DeltaTemperature (^{\circ}C)");
