@@ -1,2 +1,0 @@
-Data/TJ_CO2_Evolutions.csv filter=lfs diff=lfs merge=lfs -text
-Figures/ filter=lfs diff=lfs merge=lfs -text
