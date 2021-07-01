@@ -1,0 +1,4 @@
+[core]
+    remote = private_papers
+['remote "private_papers"']
+    url = s3://st-andrews-isotope-geochemistry-private/GitHub
