@@ -1,0 +1,9 @@
+{
+    "co2":[400,5000],
+    "saturation_state":[5,10.7],
+    "initial_temperature":[14.8,3.3],
+    "temperature_change":[4.2,1.1],
+    "calcium":[8,17],
+    "magnesium":[28,52],
+    "epsilon":[[26,0.5],[27.2,0.3]]
+}
