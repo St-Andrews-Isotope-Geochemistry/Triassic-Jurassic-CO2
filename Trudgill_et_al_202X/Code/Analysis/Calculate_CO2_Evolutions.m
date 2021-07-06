@@ -88,6 +88,12 @@ ca_sampler.getSamples(number_of_samples).shuffle();
 mg_sampler.getSamples(number_of_samples).shuffle();
 epsilon_sampler.getSamples(number_of_samples).shuffle();
 
+% Additional parameters
+oceanic_pressure = input_parameters.oceanic_pressure;
+atmospheric_pressure = input_parameters.atmospheric_pressure;
+salinity = input_parameters.salinity;
+
+
 for d11B_sampler_index = 1:numel(d11B_samplers)
     d11B_samplers(d11B_sampler_index).getSamples(number_of_samples).shuffle();
 end
@@ -116,9 +122,9 @@ initial_d11B_CO2.carbonate_chemistry.assignToEach("calcium",ca_sampler.samples);
 initial_d11B_CO2.carbonate_chemistry.assignToEach("magnesium",mg_sampler.samples);
 
 % Constant
-initial_d11B_CO2.carbonate_chemistry.assignToAll("salinity",35);
-initial_d11B_CO2.carbonate_chemistry.assignToAll("oceanic_pressure",0);
-initial_d11B_CO2.carbonate_chemistry.assignToAll("atmospheric_pressure",1);
+initial_d11B_CO2.carbonate_chemistry.assignToAll("salinity",salinity);
+initial_d11B_CO2.carbonate_chemistry.assignToAll("oceanic_pressure",oceanic_pressure);
+initial_d11B_CO2.carbonate_chemistry.assignToAll("atmospheric_pressure",atmospheric_pressure);
 
 % Create a MyAMI object
 myami = MyAMI.MyAMI("Precalculated",true);
@@ -242,9 +248,9 @@ for evolution_index = 1:size(co2_evolutions,2)
     co2_evolutions(:,evolution_index).boron.d11B_sw.assignToAll("value",combined_initial_d11B_sw_sampler.samples(random_index));
     
     co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToEach("temperature",initial_temperature_sampler.samples(evolution_index)+temperature_change);
-    co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("salinity",35);
-    co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("oceanic_pressure",0);
-    co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("atmospheric_pressure",1);
+    co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("salinity",salinity);
+    co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("oceanic_pressure",oceanic_pressure);
+    co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("atmospheric_pressure",atmospheric_pressure);
     co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("calcium",ca_sampler.samples(evolution_index));
     co2_evolutions(:,evolution_index).carbonate_chemistry.conditions.assignToAll("magnesium",mg_sampler.samples(evolution_index));
     

@@ -69,9 +69,9 @@ epsilon_sampler.getSamples(number_of_samples).shuffle();
 initial_d11B_sampler.getSamples(number_of_samples).shuffle();
 
 % Additional parameters
-oceanic_pressure = 0;
-atmospheric_pressure = 1;
-salinity = 35;
+oceanic_pressure = input_parameters.oceanic_pressure;
+atmospheric_pressure = input_parameters.atmospheric_pressure;
+salinity = input_parameters.salinity;
 
 %% Process background
 % Set up an array to do the d11B->CO2 calculations

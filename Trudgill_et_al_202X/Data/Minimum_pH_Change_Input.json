@@ -5,5 +5,8 @@
     "temperature_change":[2.0,0.55],
     "calcium":[8,10],
     "magnesium":[50,52],
-    "epsilon":[28.4,0.3]
+    "epsilon":[28.4,0.3],
+    "oceanic_pressure":0,
+    "atmospheric_pressure":1,
+    "salinity":35
 }
