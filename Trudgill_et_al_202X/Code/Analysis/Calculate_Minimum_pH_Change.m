@@ -15,8 +15,9 @@
 clear
 
 %% Load in data
-% temperature_data = readtable("./../../Data/TJ_Temperature.xlsx");
-boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
+data_directory = "./../../Data/";
+boron_data = readtable(data_directory+"TJ_d11B_pH.xlsx");
+temperature_data = readtable(data_directory+"TJ_Temperature.xlsx");
 
 % Segregate into prepeturbation and during/after perturbation
 background_data = boron_data(1:9,:);
@@ -28,6 +29,9 @@ perturbation_d11B4 = nanmin(perturbation_data.d11B);
 
 d11B4_change = background_d11B4-perturbation_d11B4;
 
+raw_input_parameters = fileread(data_directory+"Minimum_pH_Change_Input.json");
+input_parameters = jsondecode(raw_input_parameters);
+
 %% Set up distributions and sample them
 % Choose the number of statistical samples
 number_of_samples = 10000;
@@ -35,13 +39,13 @@ number_of_samples = 10000;
 % Set up a distribution for each variable
 % Uncertainties should be tuned to represent 2sigma uncertainty
 % If not known, be generous
-initial_co2_distribution = Geochemistry_Helpers.Distribution(0:10e-6:1000e-6,"Gaussian",[500e-6,50e-6]).normalise();
-initial_saturation_distribution = Geochemistry_Helpers.Distribution(6:0.1:15,"Gaussian",[10.7,0.15]).normalise();
-initial_temperature_distribution = Geochemistry_Helpers.Distribution(0:0.01:30,"Gaussian",[14.8+3.3*2,1.65]).normalise();
-temperature_change_distribution = Geochemistry_Helpers.Distribution(0:0.1:10,"Gaussian",[4.2-1.1*2,0.55]).normalise();
-ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",[8,10]).normalise();
-mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",[50,52]).normalise();
-epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:31,"Gaussian",[27.2+0.6*2,0.3]).normalise();
+initial_co2_distribution = Geochemistry_Helpers.Distribution(10e-6:10e-6:1000e-6,"Gaussian",input_parameters.co2/1e6).normalise();
+initial_saturation_distribution = Geochemistry_Helpers.Distribution(6:0.1:15,"Gaussian",input_parameters.saturation_state).normalise();
+initial_temperature_distribution = Geochemistry_Helpers.Distribution(0:0.01:30,"Gaussian",input_parameters.initial_temperature).normalise();
+temperature_change_distribution = Geochemistry_Helpers.Distribution(0:0.1:10,"Gaussian",input_parameters.temperature_change).normalise();
+ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",input_parameters.calcium).normalise();
+mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",input_parameters.magnesium).normalise();
+epsilon_distribution = Geochemistry_Helpers.Distribution(27:0.01:31,"Gaussian",input_parameters.epsilon).normalise();
 initial_d11B_distribution = Geochemistry_Helpers.Distribution(0:0.1:40,"Gaussian",[background_d11B4,background_d11B4_uncertainty]).normalise();
 
 % Create samplers for those distributions
@@ -64,41 +68,42 @@ mg_sampler.getSamples(number_of_samples).shuffle();
 epsilon_sampler.getSamples(number_of_samples).shuffle();
 initial_d11B_sampler.getSamples(number_of_samples).shuffle();
 
-% Make sure we don't pick 0 CO2 - could also find a better distribution
-% than Gaussian so this doesn't happen
-initial_co2_sampler.samples(initial_co2_sampler.samples==0)=60e-6;
+% Additional parameters
+oceanic_pressure = 0;
+atmospheric_pressure = 1;
+salinity = 35;
 
 %% Process background
 % Set up an array to do the d11B->CO2 calculations
 initial = BuCC.d11BCO2().create(number_of_samples);
 
 % Assign all the necessary values
-initial.collate("species_calibration").collate("d11B_measured").assignToEach("value",initial_d11B_sampler.samples);
+initial.species_calibration.d11B_measured.assignToEach("value",initial_d11B_sampler.samples);
 
-initial.collate("boron").collate("pH").assignToAll("pValue",NaN);
-initial.collate("boron").collate("d11B_sw").assignToAll("value",NaN);
-initial.collate("boron").assignToEach("epsilon",epsilon_sampler.samples);
+initial.boron.pH.assignToAll("pValue",NaN);
+initial.boron.d11B_sw.assignToAll("value",NaN);
+initial.boron.assignToEach("epsilon",epsilon_sampler.samples);
 
-cc = initial.collate("carbonate_chemistry");
+cc = initial.carbonate_chemistry;
 cc.assignToAll("units"," mol/kg");
 cc.assignToEach("temperature",initial_temperature_sampler.samples);
-cc.assignToAll("salinity",35);
-cc.assignToAll("oceanic_pressure",0);
-cc.assignToAll("atmospheric_pressure",1);
+cc.assignToAll("salinity",salinity);
+cc.assignToAll("oceanic_pressure",oceanic_pressure);
+cc.assignToAll("atmospheric_pressure",atmospheric_pressure);
 cc.assignToEach("calcium",ca_sampler.samples);
 cc.assignToEach("magnesium",mg_sampler.samples);
 
-initial.collate("carbonate_chemistry").collate("atmospheric_co2").assignToEach("partial_pressure",initial_co2_sampler.samples);
-initial.collate("carbonate_chemistry").assignToEach("saturation_state",initial_saturation_sampler.samples);
+initial.carbonate_chemistry.atmospheric_co2.assignToEach("partial_pressure",initial_co2_sampler.samples);
+initial.carbonate_chemistry.assignToEach("saturation_state",initial_saturation_sampler.samples);
 
 myami = MyAMI.MyAMI("Precalculated",true);
-initial.collate("carbonate_chemistry").collate("equilibrium_coefficients").assignToAll("MyAMI",myami);
+initial.carbonate_chemistry.equilibrium_coefficients.assignToAll("MyAMI",myami);
 
 % Do carbonate chemistry calculations
 initial.calculate();
 
 %% d11B_sw
-initial_d11B_sw = initial.collate("boron").collate("d11B_sw").collate("value");
+initial_d11B_sw = initial.boron.d11B_sw.value;
 initial_d11B_sw_distribution = Geochemistry_Helpers.Distribution.fromSamples((0:0.1:40)',initial_d11B_sw).normalise();
 
 % We also have a d11B_sw constraint from the range of measured d11B
@@ -148,46 +153,36 @@ d11B_sw_from_minimum_maximum_distribution = Geochemistry_Helpers.Distribution(in
 combined_initial_d11B_sw = d11B_sw_from_minimum_maximum_distribution.probabilities.*initial_d11B_sw_distribution.probabilities;
 combined_initial_d11B_sw_distribution = Geochemistry_Helpers.Distribution(initial_d11B_sw_distribution.bin_edges,"manual",combined_initial_d11B_sw).normalise();
 
-
-figure(1);
-clf
-hold on
-d11B_sw_distribution = Geochemistry_Helpers.Distribution.fromSamples(10:0.1:60,initial.collate("boron").collate("d11B_sw").collate("value")).normalise();
-
-combined_initial_d11B_sw_distribution.plot();
-d11B_sw_distribution.plot();
-d11B_sw_from_minimum_maximum_distribution.plot("Color",[0.8,0.8,0]);
-
 %% Process minimum d11B measured
 % Set up an array to do calculations
 after = BuCC.d11BCO2().create(number_of_samples);
 
 % Assign all the necessary variables
-after.collate("species_calibration").collate("d11B_measured").assignToEach("value",initial_d11B_sampler.samples-d11B4_change);
+after.species_calibration.d11B_measured.assignToEach("value",initial_d11B_sampler.samples-d11B4_change);
 
-after.collate("boron").collate("pH").assignToAll("pValue",NaN);
-after.collate("boron").collate("d11B_sw").assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
-after.collate("boron").assignToEach("epsilon",epsilon_sampler.samples);
+after.boron.pH.assignToAll("pValue",NaN);
+after.boron.d11B_sw.assignToEach("value",initial.collate("boron").collate("d11B_sw").collate("value"));
+after.boron.assignToEach("epsilon",epsilon_sampler.samples);
 
-cc = after.collate("carbonate_chemistry");
+cc = after.carbonate_chemistry;
 cc.assignToAll("units"," mol/kg");
 cc.assignToEach("temperature",initial_temperature_sampler.samples+temperature_change_sampler.samples);
-cc.assignToAll("salinity",35);
-cc.assignToAll("oceanic_pressure",0);
-cc.assignToAll("atmospheric_pressure",1);
+cc.assignToAll("salinity",salinity);
+cc.assignToAll("oceanic_pressure",oceanic_pressure);
+cc.assignToAll("atmospheric_pressure",atmospheric_pressure);
 cc.assignToEach("calcium",ca_sampler.samples);
 cc.assignToEach("magnesium",mg_sampler.samples);
 
-after.collate("carbonate_chemistry").assignToEach("alkalinity",initial.collate("carbonate_chemistry").collate("alkalinity"));
-after.collate("carbonate_chemistry").collate("equilibrium_coefficients").assignToAll("MyAMI",myami);
+after.carbonate_chemistry.assignToEach("alkalinity",initial.collate("carbonate_chemistry").collate("alkalinity"));
+after.carbonate_chemistry.equilibrium_coefficients.assignToAll("MyAMI",myami);
 
 % Do carbonate chemistry calculations
 after.calculate();
 
 %% Postprocessing
 % Collate the information
-pH_after = after.collate("carbonate_chemistry").collate("pH").collate("pValue");
-pH_initial = initial.collate("carbonate_chemistry").collate("pH").collate("pValue");
+pH_after = after.carbonate_chemistry.pH.pValue;
+pH_initial = initial.carbonate_chemistry.pH.pValue;
 
 % If a value in either array is imaginary then we don't want it
 real_pH = imag(pH_after)==0 & imag(pH_initial)==0;
@@ -211,23 +206,3 @@ pH_initial_50 = pH_initial_distribution.quantile(0.5);
 
 d11Bsw_initial_50 = initial_d11B_sw_distribution.mean();
 d11Bsw_initial_uncertainty = initial_d11B_sw_distribution.standard_deviation();
-
-%% Plotting
-figure(1)
-clf
-hold on
-pH_initial_distribution.plot();
-pH_after_distribution.plot();
-legend(["Background","Perturbation"],'Location','NorthWest','Box','Off');
-
-xlabel("pH");
-ylabel("Likelihood");
-
-
-figure(2)
-clf
-hold on
-pH_change_distribution.plot();
-
-xlabel("\Delta pH");
-ylabel("Likelihood");
