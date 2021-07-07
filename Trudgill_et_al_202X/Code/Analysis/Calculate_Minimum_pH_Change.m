@@ -1,15 +1,17 @@
 % Minimum pH change sampler
 % There are uncertainties on a lot of parameters necessary to calculate the
 % change in pH
-% To account for those uncertainties we want distributions for:
+% To account for those uncertainties we want distributions for static parameters:
 % - initial temperature
 % - initial saturation state
 % - initial CO2
 % - ca
 % - mg
+% - epsilon
+%
+% And distributions for change parameters:
+% - d11B change
 % - temperature change
-% And to set a 
-% - worst case scenario epsilon (i.e. for minimum pH change)
 
 % We'll work at 95% uncertainty (2sigma)
 clear
