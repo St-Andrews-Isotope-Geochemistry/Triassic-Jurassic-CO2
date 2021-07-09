@@ -1,12 +1,14 @@
 {
-    "co2":[500,50],
-    "saturation_state":[10.7,0.15],
-    "initial_temperature":[21.4,1.65],
-    "temperature_change":[2.0,0.55],
-    "calcium":[8,10],
-    "magnesium":[50,52],
-    "epsilon":[28.4,0.3],
-    "oceanic_pressure":0,
-    "atmospheric_pressure":1,
-    "salinity":35
+	"co2":[500,50],
+	"saturation_state":[10.7,0.15],
+	"initial_temperature":[14.4,0.877],
+	"temperature_change":[0.00956,0.967],
+	"calcium":[8,10],
+	"magnesium":[50,52],
+	"epsilon":[28.4,0.3],
+	"oceanic_pressure":0,
+	"atmospheric_pressure":1,
+	"salinity":35,
+	"initial_d11B":[10.6,0.0182],
+	"d11B_change":[-3.59,0.0371]
 }
