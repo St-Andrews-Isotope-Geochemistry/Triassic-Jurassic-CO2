@@ -1,12 +1,12 @@
 % Run TJ CO2
+data_directory = "./../../Data/";
+filename = "TJ_CO2_Evolutions.csv";
+
+delete(data_directory+filename);
+
 for loop_index = 1:1
     clear all
-    run("Calculate_CO2_Evolutions.m");
-    
-    data_directory = "./../../Data/";
-    filename = "TJ_CO2_Evolutions.csv";
-    
-    delete(data_directory+filename);
+    run("Calculate_CO2_Evolutions.m");    
 
     writematrix(pH,data_directory+filename,'WriteMode','append');
     writematrix(co2,data_directory+filename,'WriteMode','append');
