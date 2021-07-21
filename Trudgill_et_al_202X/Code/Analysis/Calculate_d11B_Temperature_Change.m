@@ -102,3 +102,36 @@ for name = current_file_fieldnames'
     end
 end
 fclose(fileID);
+
+current_file_contents = jsondecode(fileread(data_directory+"CO2_Evolutions_Input.json"));
+current_file_contents.initial_d11B = [d11B_preperturbation.d11B(1),d11B_preperturbation.d11B_uncertainty(1)];
+
+current_file_contents.initial_temperature = [initial_temperature_fit.a1,initial_temperature_fit.b1,initial_temperature_fit.c1;
+                                             initial_temperature_fit.a2,initial_temperature_fit.b2,initial_temperature_fit.c2]';
+                                         
+current_file_fieldnames = string(fieldnames(current_file_contents));
+
+fileID = fopen(data_directory+"CO2_Evolutions_Input.json","w");
+fwrite(fileID,"{"+newline);
+for name = current_file_fieldnames'
+    fwrite(fileID,string(char(9))+'"'+name+'":');
+    if numel(current_file_contents.(name))==1
+        fwrite(fileID,num2str(current_file_contents.(name)));
+    elseif numel(current_file_contents.(name))==2
+        values = current_file_contents.(name);
+        fwrite(fileID,"["+num2str(values(1),3)+","+num2str(values(2),3)+"]");
+    elseif numel(current_file_contents.(name))==4
+        values = current_file_contents.(name);
+        fwrite(fileID,"[["+num2str(values(1),3)+","+num2str(values(2),3)+"],["+num2str(values(3),3)+","+num2str(values(4),3)+"]]"); 
+    elseif numel(current_file_contents.(name))==6
+        values = current_file_contents.(name);
+        fwrite(fileID,"[["+num2str(values(1),3)+","+num2str(values(2),3)+","+num2str(values(3),3)+"],["+num2str(values(4),3)+","+num2str(values(5),3)+","+num2str(values(6),3)+"]]"); 
+    end
+    
+    if ~strcmp(name,current_file_fieldnames(end))
+        fwrite(fileID,","+newline);
+    else
+        fwrite(fileID,newline+"}");
+    end
+end
+fclose(fileID);
