@@ -1,12 +1,28 @@
 clear
 data_directory = "./../../Data/";
 d18O_d13C = readtable(data_directory+"TJ_d18O_d13C.xlsx","Sheet","With_Age");
+d18O_sw_raw = fileread(data_directory+"d18O_sw_Petryshyn.json");
+d18O_sw = jsondecode(d18O_sw_raw).d18O_sw;
 d11B = readtable(data_directory+"TJ_d11B.xlsx","Sheet","With_Age");
+
+%%
+d18O_x = -5:0.01:5;
+number_of_samples = 10000;
+
+d18O_sw_samplers = Geochemistry_Helpers.Sampler().create(size(d18O_sw,1));
+for sampler_index = 1:size(d18O_sw,1)
+    d18O_sw_samplers(sampler_index) = Geochemistry_Helpers.Sampler(d18O_x,"Gaussian",[d18O_sw(sampler_index,1),d18O_sw(sampler_index,2)],"latin_hypercube").normalise();
+end
+d18O_sw_samplers.getSamples(number_of_samples).shuffle();
+
+d18O_sw_combined_distribution = Geochemistry_Helpers.Distribution.fromSamples(d18O_x,mean(d18O_sw_samplers.samples));
+d18O_sw_metrics = [d18O_sw_combined_distribution.median(),d18O_sw_combined_distribution.standard_deviation()];
 
 %% Anonymous functions
 oneil_calibration = @(d18O_ratio,seawater_d18O_ratio) ((((3.597122e-4)*log(d18O_ratio./seawater_d18O_ratio))+1.2194e-6).^(-0.5))-273.15;
 kim_oneil_calibration = @(d18O_ratio,seawater_d18O_ratio) ((0.0554631*log(d18O_ratio./seawater_d18O_ratio) + 0.0017981).^(-1))-273.15;
 no_ice_hansen_calibration = @(d18O) -4*d18O+12;
+no_ice_hansen_calibration_sw = @(d18O,d18O_sw) -4*(d18O-d18O_sw)+16.8;
 anderson_arthur_calibration = @(d18O,d18O_sw) 16-(4.14*(d18O-d18O_sw))+(0.13*(d18O-d18O_sw).^2);
 
 %%
@@ -18,7 +34,7 @@ seawater_d18O = Geochemistry_Helpers.delta("O_VSMOW",-1.2);
 
 d18O_d13C.oneil_temperature = oneil_calibration(d18O.collate("ratio"),seawater_d18O.ratio);
 d18O_d13C.kim_oneil_temperature = kim_oneil_calibration(d18O.collate("ratio"),seawater_d18O.ratio);
-d18O_d13C.hansen_temperature = no_ice_hansen_calibration(d18O_d13C.d18O);
+d18O_d13C.hansen_temperature = no_ice_hansen_calibration_sw(d18O_d13C.d18O,d18O_sw_metrics(1));
 d18O_d13C.anderson_arthur_temperature = anderson_arthur_calibration(d18O_d13C.d18O,seawater_d18O.value);
 
 %% Save

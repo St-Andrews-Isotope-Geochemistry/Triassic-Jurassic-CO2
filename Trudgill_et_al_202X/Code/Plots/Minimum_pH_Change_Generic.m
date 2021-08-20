@@ -24,7 +24,7 @@ starting_d11B_4 = starting_co2s.collate("boron").collate("d11B_4").collate("valu
 d11B_4_change = [2,4,8,3.5126];
 final_d11B4s = Geochemistry_Helpers.delta().create([numel(starting_pH),numel(d11B_4_change)]);
 final_d11B4s.assignToAll("standard","B");
-final_d11B4s.assignToEach("value",starting_d11B_4'-d11B_4_change);
+final_d11B4s.assignToEach("value",starting_d11B_4-d11B_4_change);
 
 final_co2s = BuCC.d11BCO2().create([numel(starting_pH),numel(d11B_4_change)]);
 final_co2s.collate("boron").assignToEach("d11B_4",final_d11B4s);
@@ -54,7 +54,7 @@ final_co2 = final_co2s.collate("carbonate_chemistry").collate("atmospheric_co2")
 final_co2(~real_pH) = NaN;
 
 pH_change = (final_pH-starting_pH');
-co2_change = (final_co2-starting_co2')*1e6;
+co2_change = (final_co2-starting_co2)*1e6;
 
 %%
 pH_colours{3} = [0.8,0,0];
