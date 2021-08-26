@@ -32,7 +32,7 @@
 % Using: Alkalinity evolutions + pH
 % Gives: CO2 evolutions
 
-clear
+% clear
 
 %%
 tic
@@ -43,6 +43,7 @@ number_of_samples = 1000;
 
 % Load in the data
 boron_data = readtable(data_directory+"TJ_d11B.xlsx","Sheet","Delta_Temperature");
+temperature_data = readtable(data_directory+"TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
 raw_input_parameters = fileread(data_directory+"CO2_Evolutions_Input.json");
 input_parameters = jsondecode(raw_input_parameters);
 
@@ -54,7 +55,6 @@ for alkalinity_constraint_index = 1:size(alkalinity_constraints,1)
     alkalinity_constraint_distributions(alkalinity_constraint_index).location = alkalinity_constraints(alkalinity_constraint_index,1);
 end
 
-
 %% Distributions and Samplers
 % Generate distributions for each variable to represent uncertainties
 initial_co2_distribution = Geochemistry_Helpers.Distribution(0:100e-6:10000e-6,"Flat",input_parameters.co2/1e6).normalise();
@@ -63,6 +63,7 @@ ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",input_parame
 mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",input_parameters.magnesium).normalise();
 species_calibration_gradient_distribution = Geochemistry_Helpers.Distribution(0:0.01:1.1,"Flat",[0.1,1]).normalise();
 species_calibration_offset_distribution = Geochemistry_Helpers.Distribution(-10:0.1:10,"Flat",[-5,5]).normalise();
+alkalinity_scaling_distribution = Geochemistry_Helpers.Distribution(0:10:12000,"Flat",[10,10000]).normalise();
 
 initial_temperature_distributions = [Geochemistry_Helpers.Distribution(-10:0.1:30,"Gaussian",input_parameters.initial_temperature(1,2:3)).normalise(input_parameters.initial_temperature(1,1)),Geochemistry_Helpers.Distribution(-10:0.1:30,"Gaussian",input_parameters.initial_temperature(2,2:3)).normalise(input_parameters.initial_temperature(2,1))];
 initial_temperature_distribution = Geochemistry_Helpers.Distribution(-10:0.1:30,"Manual",initial_temperature_distributions(1).probabilities+initial_temperature_distributions(2).probabilities).normalise();
@@ -72,31 +73,28 @@ epsilon_distribution = Geochemistry_Helpers.Distribution(23:0.01:30,"Manual",eps
 
 d11B_measured_distributions = Geochemistry_Helpers.Distribution().create([height(boron_data),1]);
 for d11B_distribution_index = 1:numel(d11B_measured_distributions)
-    d11B_measured_distributions(d11B_distribution_index) = Geochemistry_Helpers.Distribution(0:0.1:40,"Gaussian",[boron_data.d11B(d11B_distribution_index),boron_data.d11B_uncertainty(d11B_distribution_index)/2]).normalise();
+    d11B_measured_distributions(d11B_distribution_index) = Geochemistry_Helpers.Distribution(-20:0.01:40,"Gaussian",[boron_data.d11B(d11B_distribution_index),boron_data.d11B_uncertainty(d11B_distribution_index)/2]).normalise();
+    d11B_measured_distributions(d11B_distribution_index).location = boron_data.age(d11B_distribution_index);
 end
-temperature_distributions = Geochemistry_Helpers.Distribution().create([height(boron_data),1]);
-for temperature_distribution_index = 1:numel(d11B_measured_distributions)
-    temperature_distributions(temperature_distribution_index) = Geochemistry_Helpers.Distribution(-20:0.1:20,"Gaussian",[boron_data.delta_temperature(temperature_distribution_index),boron_data.delta_temperature_uncertainty(temperature_distribution_index)]).normalise();
+temperature_distributions = Geochemistry_Helpers.Distribution().create([height(temperature_data),1]);
+for temperature_distribution_index = 1:numel(temperature_distributions)
+    temperature_distributions(temperature_distribution_index) = Geochemistry_Helpers.Distribution(-20:0.1:20,"Gaussian",[temperature_data.delta_temperature(temperature_distribution_index),temperature_data.delta_temperature_uncertainty(temperature_distribution_index)]).normalise();
+    if temperature_distribution_index==1
+        temperature_distributions(temperature_distribution_index) = Geochemistry_Helpers.Distribution(-20:0.1:20,"Gaussian",[temperature_data.delta_temperature(temperature_distribution_index),0.01]).normalise();
+    end
+    temperature_distributions(temperature_distribution_index).location = temperature_data.age(temperature_distribution_index);
 end
 
 % Use a sampling technique for those distributions
-initial_co2_sampler = Geochemistry_Helpers.Sampler(initial_co2_distribution,"latin_hypercube");
-initial_omega_sampler = Geochemistry_Helpers.Sampler(initial_omega_distribution,"latin_hypercube");
-initial_temperature_sampler = Geochemistry_Helpers.Sampler(initial_temperature_distribution,"latin_hypercube");
-ca_sampler = Geochemistry_Helpers.Sampler(ca_distribution,"latin_hypercube");
-mg_sampler = Geochemistry_Helpers.Sampler(mg_distribution,"latin_hypercube");
-epsilon_sampler = Geochemistry_Helpers.Sampler(epsilon_distribution,"latin_hypercube");
-species_calibration_gradient_sampler = Geochemistry_Helpers.Sampler(species_calibration_gradient_distribution,"latin_hypercube");
-species_calibration_offset_sampler = Geochemistry_Helpers.Sampler(species_calibration_offset_distribution,"latin_hypercube");
-
-d11B_measured_samplers = Geochemistry_Helpers.Sampler().create([height(boron_data),1]);
-for d11B_sampler_index = 1:numel(d11B_measured_distributions)
-    d11B_measured_samplers(d11B_sampler_index) = Geochemistry_Helpers.Sampler(d11B_measured_distributions(d11B_sampler_index),"latin_hypercube");
-end
-temperature_samplers = Geochemistry_Helpers.Sampler().create([height(boron_data),1]);
-for temperature_sampler_index = 1:numel(temperature_distributions)
-    temperature_samplers(temperature_sampler_index) = Geochemistry_Helpers.Sampler(temperature_distributions(temperature_sampler_index),"latin_hypercube");
-end
+initial_co2_sampler = Geochemistry_Helpers.Sampler(initial_co2_distribution,"latin_hypercube_random");
+initial_omega_sampler = Geochemistry_Helpers.Sampler(initial_omega_distribution,"latin_hypercube_random");
+initial_temperature_sampler = Geochemistry_Helpers.Sampler(initial_temperature_distribution,"latin_hypercube_random");
+ca_sampler = Geochemistry_Helpers.Sampler(ca_distribution,"latin_hypercube_random");
+mg_sampler = Geochemistry_Helpers.Sampler(mg_distribution,"latin_hypercube_random");
+epsilon_sampler = Geochemistry_Helpers.Sampler(epsilon_distribution,"latin_hypercube_random");
+species_calibration_gradient_sampler = Geochemistry_Helpers.Sampler(species_calibration_gradient_distribution,"latin_hypercube_random");
+species_calibration_offset_sampler = Geochemistry_Helpers.Sampler(species_calibration_offset_distribution,"latin_hypercube_random");
+alkalinity_scaling_sampler = Geochemistry_Helpers.Sampler(alkalinity_scaling_distribution,"latin_hypercube_random");
 
 % Get the samples
 initial_co2_sampler.getSamples(number_of_samples).shuffle();
@@ -107,16 +105,29 @@ mg_sampler.getSamples(number_of_samples).shuffle();
 epsilon_sampler.getSamples(number_of_samples).shuffle();
 species_calibration_gradient_sampler.getSamples(number_of_samples).shuffle();
 species_calibration_offset_sampler.getSamples(number_of_samples).shuffle();
+alkalinity_scaling_sampler.getSamples(number_of_samples).shuffle();
 
-for d11B_sampler_index = 1:numel(d11B_measured_samplers)
-    d11B_measured_samplers(d11B_sampler_index).getSamples(number_of_samples).shuffle();
-end
-d11B_measured_evolutions = d11B_measured_samplers.collate("samples");
-for temperature_sampler_index = 1:numel(temperature_samplers)
-    temperature_samplers(temperature_sampler_index).getSamples(number_of_samples).shuffle();
-end
-temperature_evolutions = temperature_samplers.collate("samples");
-temperature_evolutions(1,:) = 0;
+interpolation_ages = unique(sort([boron_data.age',linspace(min(boron_data.age),max(boron_data.age),80)]));
+
+d11B_gp = Geochemistry_Helpers.GaussianProcess("rbf",interpolation_ages);
+d11B_gp.observations = d11B_measured_distributions';
+d11B_gp.runKernel([0.8,18000/1e6],5);
+d11B_gp.getSamples(number_of_samples);
+d11B_measured_evolutions = d11B_gp.samples';
+
+temperature_gp = Geochemistry_Helpers.GaussianProcess("rbf",interpolation_ages);
+temperature_gp.observations = temperature_distributions';
+temperature_gp.runKernel([5,30000/1e6],1);
+temperature_gp.getSamples(number_of_samples);
+temperature_evolutions = temperature_gp.samples';
+
+% figure(1);
+% clf
+% hold on
+% temperature_gp.plotSamples(1:100);
+% temperature_gp.plotObservations();
+% 
+% set(gca,'XDir','Reverse');
 
 % Additional parameters
 oceanic_pressure = input_parameters.oceanic_pressure;
@@ -128,7 +139,7 @@ initial_d11B_CO2 = BuCC.d11BCO2().create(number_of_samples);
 
 % Species calibration
 initial_d11B_CO2.species_calibration.assignToEach("coefficients",[species_calibration_gradient_sampler.samples;species_calibration_offset_sampler.samples]');
-initial_d11B_CO2.species_calibration.d11B_measured.assignToEach("value",d11B_measured_samplers(1).samples);
+initial_d11B_CO2.species_calibration.d11B_measured.assignToEach("value",d11B_measured_evolutions(1,:));
 
 % Boron
 initial_d11B_CO2.boron.pH.assignToAll("pValue",NaN);
@@ -164,7 +175,7 @@ initial_pH = initial_d11B_CO2.carbonate_chemistry.pH.collate("pValue");
 initial_alkalinity = initial_d11B_CO2.carbonate_chemistry.alkalinity;
 
 %% We have starting conditions but can refine d11B_sw
-d11B_4_evolutions = BuCC.BoronSpeciesCalibration().create([height(boron_data),number_of_samples]);
+d11B_4_evolutions = BuCC.BoronSpeciesCalibration().create([numel(interpolation_ages),number_of_samples]);
 for evolution_index = 1:size(d11B_4_evolutions,2)    
     % Species calibration
     d11B_4_evolutions(:,evolution_index).assignToAll("form","polynomial");
@@ -176,14 +187,24 @@ for evolution_index = 1:size(d11B_4_evolutions,2)
 end
 d11B_4_evolutions_value = d11B_4_evolutions.d11B_4.value;
 
+d11B_m_change = mean(d11B_measured_evolutions(1:9,:))-min(d11B_measured_evolutions);
+d11B_4_change = mean(d11B_4_evolutions_value(1:9,:))-min(d11B_4_evolutions_value);
+
+
 % Collate the viable d11B_sw's and make a distribution
 initial_d11B_sw = initial_d11B_CO2.boron.d11B_sw.value;
-initial_d11B_sw_sampler = Geochemistry_Helpers.Sampler.fromSamples(0:0.1:60,initial_d11B_sw,"latin_hypercube");
+initial_d11B_sw_sampler = Geochemistry_Helpers.Sampler.fromSamples(0:0.1:60,initial_d11B_sw,"latin_hypercube_random");
 
 % We also have a d11B_sw constraint from the range of measured d11B
 % So get the minimum and maximum
 d11B_sw_minimum = max(d11B_4_evolutions_value);
-d11B_sw_maximum = min(d11B_4_evolutions_value)+epsilon_sampler.samples;
+d11B_sw_maximum_ratio = min(d11B_4_evolutions.d11B_4.ratio).*(1+epsilon_sampler.samples/1000);
+
+delta_maximum = Geochemistry_Helpers.delta().create(numel(d11B_sw_maximum_ratio));
+delta_maximum.assignToAll("standard","B");
+delta_maximum.assignToEach("ratio",d11B_sw_maximum_ratio);
+
+d11B_sw_maximum = delta_maximum.value';
 
 %%
 number_of_subsamples = number_of_samples;
@@ -215,7 +236,7 @@ species_calibration_offset_redistribution = Geochemistry_Helpers.Distribution.fr
 temperature_redistribution = Geochemistry_Helpers.Distribution.fromSamples(-20:0.1:20,temperature_resamples);
 
 %%
-pH_evolutions = BuCC.d11BCO2().create([height(boron_data),number_of_subsamples,2]);
+pH_evolutions = BuCC.d11BCO2().create([numel(interpolation_ages),number_of_subsamples,2]);
 for evolution_index = 1:size(pH_evolutions,2)
     % Low omega
     % Species calibration
@@ -230,7 +251,10 @@ for evolution_index = 1:size(pH_evolutions,2)
     % Carbonate chemistry
     % Main parameters
     pH_evolutions(:,evolution_index,1).carbonate_chemistry.atmospheric_co2.assignToAll("partial_pressure",NaN);
-    pH_evolutions(:,evolution_index,1).carbonate_chemistry.assignToEach("saturation_state",[5*ones(9,1);1*ones(13,1)]);
+    saturation_state_low = 1*ones(numel(interpolation_ages),1);
+    saturation_state_low(interpolation_ages>boron_data.age(9)) = 5;
+    
+    pH_evolutions(:,evolution_index,1).carbonate_chemistry.assignToEach("saturation_state",saturation_state_low);
     pH_evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("units"," mol/kg");
     
     % Ancillary
@@ -294,14 +318,13 @@ alkalinity_boundaries = pH_evolutions.carbonate_chemistry.alkalinity;
 
 %% To calculate evolutions we need to know how alkalinity may have changed
 % Do this using Gaussian process
-
-gp = Geochemistry_Helpers.GaussianProcess("rbf",boron_data.age');
+gp = Geochemistry_Helpers.GaussianProcess("rbf",interpolation_ages);
 gp.observations = alkalinity_constraint_distributions;
 
-gp.runKernel([0.5,0.1]);
+gp.runKernel([0.5,0.05]);
 gp.getSamples(number_of_samples);
 
-scaled_alkalinity_samples = (((gp.samples.*8000)+alkalinity_resamples*1e6)/1e6)';
+scaled_alkalinity_samples = (((gp.samples.*repmat(alkalinity_scaling_sampler.samples',1,100))+alkalinity_resamples*1e6)/1e6)';
 
 viable_alkalinity_samples = all(scaled_alkalinity_samples>=alkalinity_boundaries(:,:,1)) & all(scaled_alkalinity_samples<=alkalinity_boundaries(:,:,2));
 
@@ -319,7 +342,7 @@ mg_viable = mg_resamples(viable_alkalinity_samples);
 temperature_viable = temperature_resamples(:,viable_alkalinity_samples);
 
 %%
-co2_evolutions = BuCC.d11BCO2().create([height(boron_data),size(alkalinity_evolutions_viable,2)]);
+co2_evolutions = BuCC.d11BCO2().create([numel(interpolation_ages),size(alkalinity_evolutions_viable,2)]);
 for evolution_index = 1:size(alkalinity_evolutions_viable,2)
     % Species calibration
     co2_evolutions(:,evolution_index,1).species_calibration.assignToAll("coefficients",[species_calibration_gradient_viable(evolution_index),species_calibration_offset_viable(evolution_index)]');
@@ -354,7 +377,19 @@ for evolution_index = 1:size(alkalinity_evolutions_viable,2)
     % Do carbonate chemistry calculations
     co2_evolutions(:,evolution_index).calculate();
 end
+
 co2_evolutions_value = co2_evolutions.carbonate_chemistry.atmospheric_co2.x;
 saturation_state_output = co2_evolutions.carbonate_chemistry.saturation_state;
 alkalinity_output = co2_evolutions.carbonate_chemistry.alkalinity;
 pH_output = co2_evolutions.carbonate_chemistry.pH.pValue;
+species_calibration_gradient_output = co2_evolutions.species_calibration.coefficients;
+
+d11B_m_change = mean(d11B_evolutions_viable(1:9,:))-min(d11B_evolutions_viable);
+d11B_4_change = mean(co2_evolutions(1:9,:).species_calibration.d11B_4.value)-min(co2_evolutions.species_calibration.d11B_4.value);
+
+d11B_sw_output = co2_evolutions.boron.d11B_sw.value;
+
+pH_change = mean(pH_output(1:9,:))-min(pH_output);
+pH_change_output_distribution = Geochemistry_Helpers.Distribution.fromSamples(-0.5:0.05:2,pH_change);
+
+species_calibration_gradient_output_distribution = Geochemistry_Helpers.Distribution.fromSamples(0:0.05:1.1,species_calibration_gradient_output(1,:,1));
