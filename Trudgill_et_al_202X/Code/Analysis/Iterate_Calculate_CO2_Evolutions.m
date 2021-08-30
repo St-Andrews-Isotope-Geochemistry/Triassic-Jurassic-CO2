@@ -3,7 +3,7 @@ clear
 data_directory = "./../../Data/";
 filename = "TJ_CO2_Evolutions.csv";
 
-delete(data_directory+filename);
+% delete(data_directory+filename);
     
 for loop_index = 1:10
     clearvars -except loop_index data_directory filename    
@@ -23,4 +23,5 @@ for loop_index = 1:10
     writematrix(co2_evolutions.boron.d11B_sw.collate("value"),data_directory+filename,'WriteMode','append');
     writematrix(co2_evolutions.species_calibration.coefficients(:,:,1),data_directory+filename,'WriteMode','append');
     writematrix(co2_evolutions.species_calibration.coefficients(:,:,2),data_directory+filename,'WriteMode','append');
+
 end
