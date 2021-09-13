@@ -5,6 +5,8 @@
 	"calcium":[8,17],
 	"magnesium":[28,52],
 	"epsilon":[[1,26,0.5],[1,27.2,0.3]],
+	"species_calibration_gradient":[0.25,1],
+	"species_calibration_intercept":[-4,12],
 	"oceanic_pressure":0,
 	"atmospheric_pressure":1,
 	"salinity":35,

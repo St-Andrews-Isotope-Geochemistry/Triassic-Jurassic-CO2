@@ -1,4 +1,5 @@
 clear
+
 data_directory = "./../../Data/";
 d18O_d13C = readtable(data_directory+"TJ_d18O_d13C.xlsx","Sheet","With_Age");
 d18O_sw_raw = fileread(data_directory+"d18O_sw_Petryshyn.json");
@@ -31,11 +32,12 @@ d18O.assignToAll("standard","O_VPDB");
 d18O.assignToEach("value",d18O_d13C.d18O);
 
 seawater_d18O = Geochemistry_Helpers.delta("O_VSMOW",-1.2);
+seawater_d18O_Petryshyn = Geochemistry_Helpers.delta("O_VSMOW",d18O_sw_metrics(1));
 
-d18O_d13C.oneil_temperature = oneil_calibration(d18O.collate("ratio"),seawater_d18O.ratio);
-d18O_d13C.kim_oneil_temperature = kim_oneil_calibration(d18O.collate("ratio"),seawater_d18O.ratio);
+d18O_d13C.oneil_temperature = oneil_calibration(d18O.collate("ratio"),seawater_d18O_Petryshyn.ratio);
+d18O_d13C.kim_oneil_temperature = kim_oneil_calibration(d18O.collate("ratio"),seawater_d18O_Petryshyn.ratio);
 d18O_d13C.hansen_temperature = no_ice_hansen_calibration_sw(d18O_d13C.d18O,d18O_sw_metrics(1));
-d18O_d13C.anderson_arthur_temperature = anderson_arthur_calibration(d18O_d13C.d18O,seawater_d18O.value);
+d18O_d13C.anderson_arthur_temperature = anderson_arthur_calibration(d18O_d13C.d18O,seawater_d18O_Petryshyn.value);
 
 %% Save
 current_file = data_directory+"TJ_d18O_d13C.xlsx";
@@ -57,16 +59,16 @@ for depth_index = 1:numel(averaged.height)
     averaged.d18O_uncertainty(depth_index,1) = std(d18O_d13C.d18O(at_depth),'omitnan');
     
     averaged.oneil_temperature(depth_index,1) = mean(d18O_d13C.oneil_temperature(at_depth),'omitnan');
-    averaged.oneil_temperature_uncertainty(depth_index,1) = std(d18O_d13C.oneil_temperature(at_depth),'omitnan');
+    averaged.oneil_temperature_uncertainty(depth_index,1) = std(d18O_d13C.oneil_temperature(at_depth),'omitnan')./sqrt(numel(d18O_d13C.oneil_temperature(at_depth)));
     
     averaged.kim_oneil_temperature(depth_index,1) = mean(d18O_d13C.kim_oneil_temperature(at_depth),'omitnan');
-    averaged.kim_oneil_temperature_uncertainty(depth_index,1) = std(d18O_d13C.kim_oneil_temperature(at_depth),'omitnan');
+    averaged.kim_oneil_temperature_uncertainty(depth_index,1) = std(d18O_d13C.kim_oneil_temperature(at_depth),'omitnan')./sqrt(numel(d18O_d13C.kim_oneil_temperature(at_depth)));
     
     averaged.hansen_temperature(depth_index,1) = mean(d18O_d13C.hansen_temperature(at_depth),'omitnan');
-    averaged.hansen_temperature_uncertainty(depth_index,1) = std(d18O_d13C.hansen_temperature(at_depth),'omitnan');
+    averaged.hansen_temperature_uncertainty(depth_index,1) = std(d18O_d13C.hansen_temperature(at_depth),'omitnan')./sqrt(numel(d18O_d13C.hansen_temperature(at_depth)));
 
     averaged.anderson_arthur_temperature(depth_index,1) = mean(d18O_d13C.anderson_arthur_temperature(at_depth),'omitnan');
-    averaged.anderson_arthur_temperature_uncertainty(depth_index,1) = std(d18O_d13C.anderson_arthur_temperature(at_depth),'omitnan');
+    averaged.anderson_arthur_temperature_uncertainty(depth_index,1) = std(d18O_d13C.anderson_arthur_temperature(at_depth),'omitnan')./sqrt(numel(d18O_d13C.anderson_arthur_temperature(at_depth)));
 end
 d18O_uncertainty_assumed = max(averaged.d18O_uncertainty(averaged.d18O_uncertainty~=0),[],'omitnan');
 d13C_uncertainty_assumed = max(averaged.d13C_uncertainty(averaged.d13C_uncertainty~=0),[],'omitnan');
@@ -84,6 +86,29 @@ averaged.anderson_arthur_temperature_uncertainty(averaged.anderson_arthur_temper
 
 averaged = struct2table(averaged);
 
+%%
+reaveraged_ages_spacing = 0.01;
+reaveraged.age = (201.15:reaveraged_ages_spacing:201.55)';
+for age_index = 1:numel(reaveraged.age)
+    at_age = d18O_d13C.age>=reaveraged.age(age_index) & d18O_d13C.age<reaveraged.age(age_index)+reaveraged_ages_spacing;
+    
+    reaveraged.d18O(age_index,1) = mean(d18O_d13C.d18O(at_age),'omitnan');
+    reaveraged.hansen_temperature(age_index,1) = mean(d18O_d13C.hansen_temperature(at_age),'omitnan');
+    reaveraged.hansen_temperature_uncertainty(age_index,1) = std(d18O_d13C.hansen_temperature(at_age),'omitnan')./sqrt(numel(d18O_d13C.hansen_temperature(at_age)));
+end
+hansen_temperature_uncertainty_assumed = max(reaveraged.hansen_temperature_uncertainty(reaveraged.hansen_temperature_uncertainty~=0),[],'omitnan');
+
+reaveraged.bad = isnan(reaveraged.hansen_temperature);
+
+reaveraged.age = reaveraged.age(~reaveraged.bad);
+reaveraged.hansen_temperature = reaveraged.hansen_temperature(~reaveraged.bad);
+reaveraged.hansen_temperature_uncertainty = reaveraged.hansen_temperature_uncertainty(~reaveraged.bad);
+reaveraged.hansen_temperature_uncertainty(reaveraged.hansen_temperature_uncertainty==0) = hansen_temperature_uncertainty_assumed;
+
+reaveraged = rmfield(reaveraged,{'d18O','bad'});
+
+reaveraged = struct2table(reaveraged);
+
 %% Save
 current_file = data_directory+"TJ_d18O_d13C.xlsx";
 writematrix(string(averaged.Properties.VariableNames),current_file,"Sheet","Averaged","Range","A1");
@@ -97,3 +122,10 @@ current_file = data_directory+"TJ_d18O_d13C.xlsx";
 writematrix(["height","age","d13C","d13C_uncertainty","d18O","d18O_uncertainty","delta_temperature","delta_temperature_uncertainty"],current_file,"Sheet","Delta_Temperature","Range","A1");
 writematrix(["m","Ma","‰","‰","‰","‰","°C","°C"],current_file,"Sheet","Delta_Temperature","Range","A2");
 writematrix([averaged.height,averaged.age,averaged.d13C,averaged.d13C_uncertainty,averaged.d18O,averaged.d18O_uncertainty,delta_temperature,averaged.hansen_temperature_uncertainty],current_file,"Sheet","Delta_Temperature","Range","A3");
+
+%% Reaveraged
+current_file = data_directory+"TJ_d18O_d13C.xlsx";
+writematrix(["age","hansen_temperature","hansen_temperature_uncertainty"],current_file,"Sheet","Reaveraged","Range","A1");
+writematrix(["Ma","°C","°C"],current_file,"Sheet","Reaveraged","Range","A2");
+writematrix([reaveraged.age,reaveraged.hansen_temperature,reaveraged.hansen_temperature_uncertainty],current_file,"Sheet","Reaveraged","Range","A3");
+
