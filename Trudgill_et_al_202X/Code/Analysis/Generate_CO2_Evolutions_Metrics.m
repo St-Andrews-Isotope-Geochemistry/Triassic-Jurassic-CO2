@@ -54,21 +54,8 @@ evolutions.pH_above_quantiles = evolutions.pH_distributions.quantile(above_quant
 evolutions.d11B_above_quantiles = evolutions.d11B_distributions.quantile(above_quantiles);
 evolutions.co2_above_quantiles = evolutions.co2_distributions.quantile(above_quantiles);
 
-% evolutions.pH_quantiles = [evolutions.pH_distributions.quantile(0.025),evolutions.pH_distributions.quantile(0.5),evolutions.pH_distributions.quantile(0.975)];
-% evolutions.saturation_state_quantiles = [evolutions.saturation_state_distributions.quantile(0.025),evolutions.saturation_state_distributions.quantile(0.5),evolutions.saturation_state_distributions.quantile(0.975)];
-% evolutions.co2_quantiles = [evolutions.co2_distributions.quantile(0.025),evolutions.co2_distributions.quantile(0.5),evolutions.co2_distributions.quantile(0.975)];
-% evolutions.d11B_quantiles = [evolutions.d11B_distributions.quantile(0.005),evolutions.d11B_distributions.quantile(0.5),evolutions.d11B_distributions.quantile(0.995)];
-% evolutions.alkalinity_quantiles = [evolutions.alkalinity_distributions.quantile(0.025),evolutions.alkalinity_distributions.quantile(0.5),evolutions.alkalinity_distributions.quantile(0.975)];
-
 %% High pH subsample
-% evolutions.subsample_boolean = 1;
-% evolutions.pH_subsample = reshape(evolutions.pH(evolutions.subsample_boolean),100,[]);
-% evolutions.co2_subsample =  reshape(evolutions.co2(evolutions.subsample_boolean),100,[]);
-% evolutions.saturation_state_subsample = reshape(evolutions.saturation_state(evolutions.subsample_boolean),100,[]);
-% evolutions.d11B_subsample = reshape(evolutions.d11B(evolutions.subsample_boolean),100,[]);
-% evolutions.alkalinity_subsample = reshape(evolutions.alkalinity(evolutions.subsample_boolean),100,[]);
-
-high_initial_co2.boolean = repmat(evolutions.co2(end,:)>=2000,size(evolutions.pH,1),1);
+high_initial_co2.boolean = repmat(evolutions.co2(end,:)>=800,size(evolutions.pH,1),1);
 high_initial_co2.pH = reshape(evolutions.pH(high_initial_co2.boolean),100,[]);
 high_initial_co2.co2 =  reshape(evolutions.co2(high_initial_co2.boolean),100,[]);
 high_initial_co2.saturation_state = reshape(evolutions.saturation_state(high_initial_co2.boolean),100,[]);
@@ -89,10 +76,6 @@ high_initial_co2.saturation_state_quantiles = high_initial_co2.saturation_state_
 high_initial_co2.pH_above_quantiles = high_initial_co2.pH_distributions.quantile(above_quantiles);
 high_initial_co2.d11B_above_quantiles = high_initial_co2.d11B_distributions.quantile(above_quantiles);
 high_initial_co2.co2_above_quantiles = high_initial_co2.co2_distributions.quantile(above_quantiles);
-
-% high_initial_co2.pH_quantiles = [high_initial_co2.pH_distributions.quantile(0.025),high_initial_co2.pH_distributions.quantile(0.5),high_initial_co2.pH_distributions.quantile(0.975)];
-% high_initial_co2.saturation_state_quantiles = [high_initial_co2.saturation_state_distributions.quantile(0.025),high_initial_co2.saturation_state_distributions.quantile(0.5),high_initial_co2.saturation_state_distributions.quantile(0.975)];
-% high_initial_co2.co2_quantiles = [high_initial_co2.co2_distributions.quantile(0.025),high_initial_co2.co2_distributions.quantile(0.5),high_initial_co2.co2_distributions.quantile(0.975)];
 
 %% Medium CO2 subsample
 medium_initial_co2.boolean = repmat(evolutions.co2(end,:)>=600 & evolutions.co2(end,:)<=2000,size(evolutions.pH,1),1);
@@ -116,12 +99,8 @@ medium_initial_co2.pH_above_quantiles = medium_initial_co2.pH_distributions.quan
 medium_initial_co2.d11B_above_quantiles = medium_initial_co2.d11B_distributions.quantile(above_quantiles);
 medium_initial_co2.co2_above_quantiles = medium_initial_co2.co2_distributions.quantile(above_quantiles);
 
-% medium_initial_co2.pH_quantiles = [medium_initial_co2.pH_distributions.quantile(0.025),medium_initial_co2.pH_distributions.quantile(0.5),medium_initial_co2.pH_distributions.quantile(0.975)];
-% medium_initial_co2.saturation_state_quantiles = [medium_initial_co2.saturation_state_distributions.quantile(0.025),medium_initial_co2.saturation_state_distributions.quantile(0.5),medium_initial_co2.saturation_state_distributions.quantile(0.975)];
-% medium_initial_co2.co2_quantiles = [medium_initial_co2.co2_distributions.quantile(0.025),medium_initial_co2.co2_distributions.quantile(0.5),medium_initial_co2.co2_distributions.quantile(0.975)];
-
 %% Low pH subsample
-low_initial_co2.boolean = repmat(evolutions.co2(end,:)>400 & evolutions.co2(end,:)<600,size(evolutions.pH,1),1);
+low_initial_co2.boolean = repmat(evolutions.co2(end,:)<800,size(evolutions.pH,1),1);
 low_initial_co2.pH = reshape(evolutions.pH(low_initial_co2.boolean),100,[]);
 low_initial_co2.co2 =  reshape(evolutions.co2(low_initial_co2.boolean),100,[]);
 low_initial_co2.saturation_state = reshape(evolutions.saturation_state(low_initial_co2.boolean),100,[]);
@@ -144,11 +123,19 @@ low_initial_co2.pH_above_quantiles = low_initial_co2.pH_distributions.quantile(a
 low_initial_co2.d11B_above_quantiles = low_initial_co2.d11B_distributions.quantile(above_quantiles);
 low_initial_co2.co2_above_quantiles = low_initial_co2.co2_distributions.quantile(above_quantiles);
 
-% low_initial_co2.pH_quantiles = [low_initial_co2.pH_distributions.quantile(0.025),low_initial_co2.pH_distributions.quantile(0.5),low_initial_co2.pH_distributions.quantile(0.975)];
-% low_initial_co2.saturation_state_quantiles = [low_initial_co2.saturation_state_distributions.quantile(0.025),low_initial_co2.saturation_state_distributions.quantile(0.5),low_initial_co2.saturation_state_distributions.quantile(0.975)];
-% low_initial_co2.co2_quantiles = [low_initial_co2.co2_distributions.quantile(0.025),low_initial_co2.co2_distributions.quantile(0.5),low_initial_co2.co2_distributions.quantile(0.975)];
-% low_initial_co2.d11B_quantiles = [low_initial_co2.d11B_distributions.quantile(0.025),low_initial_co2.d11B_distributions.quantile(0.5),low_initial_co2.d11B_distributions.quantile(0.975)];
+%% Temperature
+preperturbation.boolean = (interpolation_ages>=boron_data.age(9))';
+preperturbation.temperature_evolutions = evolutions.temperature(preperturbation.boolean,:);
+preperturbation.temperature_mean = mean(preperturbation.temperature_evolutions);
+preperturbation.temperature_distribution = Geochemistry_Helpers.Distribution.fromSamples(20,preperturbation.temperature_mean);
 
+perturbation.boolean = (interpolation_ages==boron_data.age(19) | interpolation_ages==boron_data.age(20))';
+perturbation.temperature_evolutions = evolutions.temperature(perturbation.boolean,:);
+perturbation.temperature_mean = mean(perturbation.temperature_evolutions);
+perturbation.temperature_distribution = Geochemistry_Helpers.Distribution.fromSamples(20,perturbation.temperature_mean);
+
+temperature_change = perturbation.temperature_mean-preperturbation.temperature_mean;
+temperature_change_distribution = Geochemistry_Helpers.Distribution.fromSamples([],temperature_change);
 
 %%
 data_directory = "./../../Data/";
