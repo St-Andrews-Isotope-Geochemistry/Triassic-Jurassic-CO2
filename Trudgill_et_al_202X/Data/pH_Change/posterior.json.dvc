@@ -1,0 +1,5 @@
+outs:
+- md5: 1c01dd2cc7c0647301e958842c577e7e
+  size: 39127
+  path: posterior.json
+  isexec: true

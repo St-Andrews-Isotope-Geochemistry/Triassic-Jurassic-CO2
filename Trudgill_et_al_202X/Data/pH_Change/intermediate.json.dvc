@@ -1,0 +1,5 @@
+outs:
+- md5: 33c5b7609d7787dc81571a696b9ec4d3
+  size: 1534922
+  path: intermediate.json
+  isexec: true
