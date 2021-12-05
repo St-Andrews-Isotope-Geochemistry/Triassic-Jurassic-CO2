@@ -1,14 +1,14 @@
 clear
 
 %% Load data
-d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab");
-d18O_d13C_averaged = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged");
+d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
+d18O_d13C_averaged = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
 
-boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
-boron_data.age = boron_data.absolute_age;
+boron_data = readtable("./../../Data/TJ_d11B.xlsx");
+% boron_data.age = boron_data.absolute_age;
 
 raw_evolutions = readmatrix("./../../Data/TJ_CO2_Evolutions.csv");
-reshaped_evolutions = reshape(raw_evolutions,[22,11,100000]);
+reshaped_evolutions = reshape(raw_evolutions,[100,13,numel(raw_evolutions)/(100*13)]);
 
 evolutions.pH = squeeze(reshaped_evolutions(:,1,:));
 evolutions.co2 = squeeze(reshaped_evolutions(:,2,:));
@@ -42,7 +42,7 @@ co2_fractional_change = evolutions_d11B_minimum.co2./evolutions_preperturbation.
 co2_doublings = log2(co2_fractional_change);
 co2_doublings = co2_doublings(imag(co2_doublings)==0);
 
-co2_change_distribution = Geochemistry_Helpers.Distribution().fromSamples(-10:0.01:10,co2_doublings);
+co2_change_distribution = Geochemistry_Helpers.Distribution().fromSamples(-10:0.01:10,co2_doublings).normalise();
 co2_change_sampler = Geochemistry_Helpers.Sampler(co2_change_distribution,"latin_hypercube");
 
 co2_change_sampler.getSamples(numel(co2_change)).shuffle();
@@ -86,4 +86,4 @@ ylabel("\DeltaTemperature (^{\circ}C)");
 xlim([0,5]);
 ylim([0,8]);
 
-exportgraphics(gcf,"./../../Figures/Climate_Sensitivity.png");
+% exportgraphics(gcf,"./../../Figures/Climate_Sensitivity.png");

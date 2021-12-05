@@ -1,14 +1,14 @@
-clear
+clear all
 
 %% Load data
-d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab");
+d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
 d18O_d13C_averaged = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged");
 
-boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
-boron_data.age = boron_data.absolute_age;
+boron_data = readtable("./../../Data/TJ_d11B.xlsx","Sheet","Delta_Temperature");
+% boron_data.age = boron_data.absolute_age;
 
 raw_evolutions = readmatrix("./../../Data/TJ_CO2_Evolutions.csv");
-reshaped_evolutions = reshape(raw_evolutions,[22,11,100000]);
+reshaped_evolutions = reshape(raw_evolutions,[100,13,numel(raw_evolutions)/(100*13)]);
 
 evolutions.pH = squeeze(reshaped_evolutions(:,1,:));
 evolutions.co2 = squeeze(reshaped_evolutions(:,2,:));
@@ -45,9 +45,9 @@ delta_co2_uncertainties = [delta_co2_distributions.quantile(0.025),delta_co2_dis
 
 %% Get the initial subsample
 evolutions_low_co2.subsample_boolean = repmat(evolutions.co2(1,:)<=2000 & all(evolutions.co2>0) & all(evolutions.saturation_state<12),size(evolutions.pH,1),1);
-evolutions_low_co2.pH = reshape(evolutions.pH(evolutions_low_co2.subsample_boolean),22,[]);
-evolutions_low_co2.co2 =  reshape(evolutions.co2(evolutions_low_co2.subsample_boolean),22,[]);
-% evolutions.saturation_state_subsample = reshape(evolutions.saturation_state(evolutions.subsample_boolean),22,[]);
+evolutions_low_co2.pH = reshape(evolutions.pH(evolutions_low_co2.subsample_boolean),100,[]);
+evolutions_low_co2.co2 =  reshape(evolutions.co2(evolutions_low_co2.subsample_boolean),100,[]);
+% evolutions.saturation_state_subsample = reshape(evolutions.saturation_state(evolutions.subsample_boolean),100,[]);
 
 evolutions_low_co2.delta_pH = diff(evolutions_low_co2.pH);
 evolutions_low_co2.delta_co2 = diff(evolutions_low_co2.co2);

@@ -1,33 +1,16 @@
 clear
 
 %% Load data
-d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab");
+d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
 d18O_d13C_averaged = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged");
 
-boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
-boron_data.age = boron_data.absolute_age;
-
-raw_evolutions = readmatrix("./../../Data/TJ_CO2_Evolutions.csv");
-reshaped_evolutions = reshape(raw_evolutions,[22,11,100000]);
-
-evolutions.pH = squeeze(reshaped_evolutions(:,1,:));
-evolutions.co2 = squeeze(reshaped_evolutions(:,2,:));
-evolutions.saturation_state = squeeze(reshaped_evolutions(:,3,:));
-evolutions.dic = squeeze(reshaped_evolutions(:,4,:));
-evolutions.alkalinity = squeeze(reshaped_evolutions(:,5,:));
-evolutions.temperature = squeeze(reshaped_evolutions(:,6,:));
-evolutions.d11B = squeeze(reshaped_evolutions(:,7,:));
-evolutions.calcium = squeeze(reshaped_evolutions(:,8,:));
-evolutions.magnesium = squeeze(reshaped_evolutions(:,9,:));
-evolutions.epsilon = squeeze(reshaped_evolutions(:,10,:));
-evolutions.d11B_sw = squeeze(reshaped_evolutions(:,1,:));
-
-clear raw_evolutions reshaped_evolutions
+boron_data = readtable("./../../Data/TJ_d11B.xlsx","Sheet","Delta_Temperature");
+evolutions = getShapedEvolutions("./../../Data/TJ_CO2_Evolutions.csv");
 
 %% Get the initial subsample
 evolutions_low_co2.subsample_boolean = repmat(evolutions.co2(1,:)<=2000 & all(evolutions.co2>0) & all(evolutions.saturation_state<12),size(evolutions.pH,1),1);
-evolutions_low_co2.pH = reshape(evolutions.pH(evolutions_low_co2.subsample_boolean),22,[]);
-evolutions_low_co2.co2 =  reshape(evolutions.co2(evolutions_low_co2.subsample_boolean),22,[]);
+evolutions_low_co2.pH = reshape(evolutions.pH(evolutions_low_co2.subsample_boolean),100,[]);
+evolutions_low_co2.co2 =  reshape(evolutions.co2(evolutions_low_co2.subsample_boolean),100,[]);
 
 evolutions_low_co2.pH_distributions = Geochemistry_Helpers.Distribution().create(numel(boron_data.age)-1);
 evolutions_low_co2.co2_distributions = Geochemistry_Helpers.Distribution().create(numel(boron_data.age)-1);
@@ -44,8 +27,8 @@ evolutions_low_co2.co2_uncertainties = [evolutions_low_co2.co2_distributions.qua
 
 %
 evolutions_high_co2.subsample_boolean = repmat(evolutions.co2(1,:)>2000 & all(evolutions.co2>0) & all(evolutions.saturation_state<12),size(evolutions.pH,1),1);
-evolutions_high_co2.pH = reshape(evolutions.pH(evolutions_high_co2.subsample_boolean),22,[]);
-evolutions_high_co2.co2 =  reshape(evolutions.co2(evolutions_high_co2.subsample_boolean),22,[]);
+evolutions_high_co2.pH = reshape(evolutions.pH(evolutions_high_co2.subsample_boolean),100,[]);
+evolutions_high_co2.co2 =  reshape(evolutions.co2(evolutions_high_co2.subsample_boolean),100,[]);
 
 evolutions_high_co2.pH_distributions = Geochemistry_Helpers.Distribution().create(numel(boron_data.age)-1);
 evolutions_high_co2.co2_distributions = Geochemistry_Helpers.Distribution().create(numel(boron_data.age)-1);

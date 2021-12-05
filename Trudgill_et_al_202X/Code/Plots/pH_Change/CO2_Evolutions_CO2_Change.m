@@ -1,28 +1,16 @@
 clear
 
 %% Load data
-d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab");
-d18O_d13C_averaged = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged");
+d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
+d18O_d13C_averaged = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
 
-boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
-boron_data.age = boron_data.absolute_age;
+boron_data = readtable("./../../Data/TJ_d11B.xlsx","Sheet","Delta_Temperature");
+evolutions = getValidSamples(getShapedEvolutions("./../../Data/TJ_CO2_Evolutions.csv"));
 
-raw_evolutions = readmatrix("./../../Data/TJ_CO2_Evolutions.csv");
-reshaped_evolutions = reshape(raw_evolutions,[22,11,100000]);
+interpolation_ages = unique(sort([boron_data.age',linspace(min(boron_data.age),max(boron_data.age),80)]));
+evolutions.age = repmat(interpolation_ages',1,size(evolutions.pH,2));
 
-evolutions.pH = squeeze(reshaped_evolutions(:,1,:));
-evolutions.co2 = squeeze(reshaped_evolutions(:,2,:));
-evolutions.saturation_state = squeeze(reshaped_evolutions(:,3,:));
-evolutions.dic = squeeze(reshaped_evolutions(:,4,:));
-evolutions.alkalinity = squeeze(reshaped_evolutions(:,5,:));
-evolutions.temperature = squeeze(reshaped_evolutions(:,6,:));
-evolutions.d11B = squeeze(reshaped_evolutions(:,7,:));
-evolutions.calcium = squeeze(reshaped_evolutions(:,8,:));
-evolutions.magnesium = squeeze(reshaped_evolutions(:,9,:));
-evolutions.epsilon = squeeze(reshaped_evolutions(:,10,:));
-evolutions.d11B_sw = squeeze(reshaped_evolutions(:,1,:));
-
-clear raw_evolutions reshaped_evolutions
+[preperturbation_evolutions,perturbation_evolutions] = splitPerturbation(evolutions,boron_data.age(9));
 
 %% Get the initial subsample
 evolutions.subsample_boolean = repmat(evolutions.saturation_state(1,:)>=5 & evolutions.saturation_state(1,:)<=10.7 & evolutions.co2(1,:)>=400 & evolutions.co2(1,:)<=5000 & all(evolutions.co2>0) & all(evolutions.saturation_state<12),size(evolutions.pH,1),1);

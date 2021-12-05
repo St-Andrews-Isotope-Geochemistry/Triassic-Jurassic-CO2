@@ -1,7 +1,8 @@
 clear
 
 %% Load data
-data = jsondecode(fileread("./../../Data/pH_Change_Individual_Sensitivity.json"));
+data_directory = "./../../../Data/";
+data = jsondecode(fileread(data_directory+"/pH_Change/pH_Change_Individual_Sensitivity.json"));
 
 independent = containers.Map();
 independent("calcium") = data{1}.calcium;
@@ -154,5 +155,5 @@ current_label = xlabel("CO_2");
 set(current_label,'Position',[(max(independent("co2"))+(max(independent("co2"))-min(independent("co2")))*0.02)*1e6,-20],'HorizontalAlignment','Left');
 xlim([min(independent("co2")),max(independent("co2"))]*1e6);
 
-exportgraphics(gcf,"./../../Figures/pH_Change_Individual_Sensitivity.png");
+% exportgraphics(gcf,"./../../Figures/pH_Change_Individual_Sensitivity.png");
 

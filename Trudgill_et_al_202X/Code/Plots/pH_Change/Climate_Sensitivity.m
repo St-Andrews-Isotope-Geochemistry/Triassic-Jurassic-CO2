@@ -1,31 +1,17 @@
 clear
 
 %% Load data
-d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Matlab");
+d18O_d13C = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
 d18O_d13C_averaged = readtable("./../../Data/TJ_d18O_d13C.xlsx","Sheet","Averaged");
 
-boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
-boron_data.age = boron_data.absolute_age;
+boron_data = readtable("./../../Data/TJ_d11B.xlsx","Sheet","Delta_Temperature");
+evolutions = getShapedEvolutions("./../../Data/TJ_CO2_Evolutions.csv");
 
-raw_evolutions = readmatrix("./../../Data/TJ_CO2_Evolutions.csv");
-reshaped_evolutions = reshape(raw_evolutions,[22,11,100000]);
-
-evolutions.pH = squeeze(reshaped_evolutions(:,1,:));
-evolutions.co2 = squeeze(reshaped_evolutions(:,2,:));
-evolutions.saturation_state = squeeze(reshaped_evolutions(:,3,:));
-evolutions.dic = squeeze(reshaped_evolutions(:,4,:));
-evolutions.alkalinity = squeeze(reshaped_evolutions(:,5,:));
-evolutions.temperature = squeeze(reshaped_evolutions(:,6,:));
-evolutions.d11B = squeeze(reshaped_evolutions(:,7,:));
-evolutions.calcium = squeeze(reshaped_evolutions(:,8,:));
-evolutions.magnesium = squeeze(reshaped_evolutions(:,9,:));
-evolutions.epsilon = squeeze(reshaped_evolutions(:,10,:));
-evolutions.d11B_sw = squeeze(reshaped_evolutions(:,1,:));
-
-clear raw_evolutions reshaped_evolutions
+interpolation_ages = unique(sort([boron_data.age',linspace(min(boron_data.age),max(boron_data.age),80)]));
+evolutions.age = repmat(interpolation_ages',1,size(evolutions.pH,2));
 
 %% Get the initial subsample
-evolutions_preperturbation.subsample_boolean = logical(repmat([ones(9,1);zeros(size(evolutions.pH,1)-9,1)],1,size(evolutions.pH,2)));
+evolutions_preperturbation.subsample_boolean = evolutions.age>=boron_data.age(9);
 evolutions_preperturbation.pH = reshape(evolutions.pH(evolutions_preperturbation.subsample_boolean),9,[]);
 evolutions_preperturbation.co2 =  reshape(evolutions.co2(evolutions_preperturbation.subsample_boolean),9,[]);
 
@@ -42,7 +28,7 @@ co2_fractional_change = evolutions_d11B_minimum.co2./evolutions_preperturbation.
 co2_doublings = log2(co2_fractional_change);
 co2_doublings = co2_doublings(imag(co2_doublings)==0);
 
-co2_change_distribution = Geochemistry_Helpers.Distribution().fromSamples(-10:0.01:10,co2_doublings);
+co2_change_distribution = Geochemistry_Helpers.Distribution().fromSamples(-10:0.01:10,co2_doublings).normalise();
 co2_change_sampler = Geochemistry_Helpers.Sampler(co2_change_distribution,"latin_hypercube");
 
 co2_change_sampler.getSamples(numel(co2_change)).shuffle();
