@@ -1,14 +1,14 @@
 {
 	"co2":[500,50],
 	"saturation_state":[10.7,0.15],
-	"initial_temperature":[14.4,0.877],
-	"temperature_change":[0.00956,0.967],
+	"initial_temperature":[25.9,3.07],
+	"temperature_change":[3.4,0.514],
 	"calcium":[8,10],
 	"magnesium":[50,52],
 	"epsilon":[28.4,0.3],
 	"oceanic_pressure":0,
 	"atmospheric_pressure":1,
 	"salinity":35,
-	"initial_d11B":[10.6,0.0182],
-	"d11B_change":[-3.59,0.0371]
+	"initial_d11B":[10.5,0.035],
+	"d11B_change":[-3.36,0.064]
 }
