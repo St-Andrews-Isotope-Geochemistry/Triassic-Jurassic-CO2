@@ -1,23 +1,26 @@
 % Maximum Initial pH
 % The most basic processing to calculate the maximum initial pH
-% Use saturation state = 10.7, CO2 = 500ppm, and other parameters as
+% Use saturation state = 11, CO2 = 500ppm, and other parameters as
 % specified
 % This is done is both csys and my BuCC package to ensure they're the same
 % A final check is done by using the output of BuCC to check that the
 % saturation state comes out the same
 
-%%
+%% Set up the variables
 clear
 
-%% Set up the variables
-saturation_state_maximum = 10.7; % From Ridgwell modelling
+data_directory = "./../../../Data/";
+
+saturation_state_maximum = 11; % From Ridgwell modelling
 co2_minimum = 500; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-salinity = 35; % Assumed
-pressure = 0; % Assumed?
-ca = 1; % Horita
-mg = 60; % Horita
+parameters = jsondecode(fileread(data_directory+"/Minimum_pH_Change/Minimum_pH_Change_Input.json"));
+
+temperature = parameters.initial_temperature(1)+parameters.initial_temperature(2); % From bulk temperatures
+salinity = parameters.salinity; % Assumed
+pressure = parameters.oceanic_pressure; % Assumed?
+ca = (parameters.calcium(1)+parameters.calcium(2))/2; % Horita
+mg = (parameters.magnesium(1)+parameters.magnesium(2))/2; % Horita
 
 %% Using csys
 % Run random numbers just to get kspc
@@ -75,9 +78,3 @@ carbonate_chemistry_check.calculate();
 
 %% Difference
 pH_difference = abs(maximum_pH_csys-maximum_pH_cc);
-
-%%
-disp("At:")
-disp("Ca = "+ca);
-disp("Mg = "+mg);
-disp("Maximum pH = "+maximum_pH_cc);

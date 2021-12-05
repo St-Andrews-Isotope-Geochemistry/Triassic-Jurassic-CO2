@@ -1,5 +1,5 @@
-% TJ_CO2 v3
-% Using: Initial CO2 between 500ppm and 5000ppm
+% High CO2 Test
+% Using: Initial CO2 between 3000ppm and 5000ppm
 %        Omega between 5 and 11
 % Gives: Viable initial pH distribution
 %        (Viable initial alkalinity distribution)
@@ -36,18 +36,18 @@
 
 %%
 tic
-data_directory = "./../../Data/";
+data_directory = "./../../../Data/";
 
 % Choose the number of statistical samples
 number_of_samples = 1000;
 
 % Load in the data
-boron_data = readtable(data_directory+"TJ_d11B.xlsx","Sheet","Delta_Temperature");
-temperature_data = readtable(data_directory+"TJ_d18O_d13C.xlsx","Sheet","Reaveraged");
-raw_input_parameters = fileread(data_directory+"CO2_Evolutions_Input.json");
+boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","Delta_Temperature");
+temperature_data = readtable(data_directory+"/Temperature/TJ_d18O_d13C.xlsx","Sheet","Averaged");
+raw_input_parameters = fileread(data_directory+"/pH_Change/CO2_Evolutions_Input.json");
 input_parameters = jsondecode(raw_input_parameters);
 
-raw_alkalinity_constraints = fileread(data_directory+"Alkalinity_Constraints.json");
+raw_alkalinity_constraints = fileread(data_directory+"/pH_Change/Alkalinity_Constraints.json");
 alkalinity_constraints = jsondecode(raw_alkalinity_constraints);
 
 for alkalinity_constraint_index = 1:size(alkalinity_constraints,1)
@@ -57,7 +57,7 @@ end
 
 %% Distributions and Samplers
 % Generate distributions for each variable to represent uncertainties
-initial_co2_distribution = Geochemistry_Helpers.Distribution(0:100e-6:10000e-6,"Flat",input_parameters.co2/1e6).normalise();
+initial_co2_distribution = Geochemistry_Helpers.Distribution(0:100e-6:10000e-6,"Flat",[3000,5000]/1e6).normalise();
 initial_omega_distribution = Geochemistry_Helpers.Distribution(0:0.1:12,"Flat",input_parameters.saturation_state).normalise();
 ca_distribution = Geochemistry_Helpers.Distribution(0:0.1:20,"Flat",input_parameters.calcium).normalise();
 mg_distribution = Geochemistry_Helpers.Distribution(20:0.1:61,"Flat",input_parameters.magnesium).normalise();
@@ -186,10 +186,6 @@ for evolution_index = 1:size(d11B_4_evolutions,2)
     d11B_4_evolutions(:,evolution_index).calculate();
 end
 d11B_4_evolutions_value = d11B_4_evolutions.d11B_4.value;
-
-d11B_m_change = mean(d11B_measured_evolutions(1:9,:))-min(d11B_measured_evolutions);
-d11B_4_change = mean(d11B_4_evolutions_value(1:9,:))-min(d11B_4_evolutions_value);
-
 
 % Collate the viable d11B_sw's and make a distribution
 initial_d11B_sw = initial_d11B_CO2.boron.d11B_sw.value;
