@@ -1,5 +1,5 @@
 outs:
-- md5: 9bb4cc096b5380f28938d8b5e8c333d1
-  size: 10711091
+- md5: c83875a770bbebaeb559ef0ca6ff62e8
+  size: 7650798
   path: prior.json
   isexec: true
