@@ -4,9 +4,9 @@ data_directory = "./../../../Data/";
 interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.json")).interpolation_ages;
 
 % Only toggle on if you want to remove the existing files (e.g. for parameters having changed)
-createResultsFile(data_directory+"/pH_Change/prior.json","prior",interpolation_ages');
-createResultsFile(data_directory+"/pH_Change/intermediate.json","intermediate",interpolation_ages');
-createResultsFile(data_directory+"/pH_Change/posterior.json","posterior",interpolation_ages');
+% createResultsFile(data_directory+"/pH_Change/prior.json","prior",interpolation_ages');
+% createResultsFile(data_directory+"/pH_Change/intermediate.json","intermediate",interpolation_ages');
+% createResultsFile(data_directory+"/pH_Change/posterior.json","posterior",interpolation_ages');
 
 
 for loop_index = 1:50
@@ -25,7 +25,7 @@ for loop_index = 1:50
     
     for posterior_index = 1:round_3.number_of_samples
         insertSample(data_directory+"/pH_Change/posterior.json",round_3,posterior_index);
-        insertpHTimeSeries(data_directory+"/pH_Change/posterior.json",round_3,posterior_index);        
+        insertExtraTimeSeries(data_directory+"/pH_Change/posterior.json",round_3,posterior_index);
     end
     
     fclose("all");
@@ -77,12 +77,13 @@ function insertArray(fileID,name,value)
     fwrite(fileID,newline+tab+tab+tab);
     fwrite(fileID,'"'+name+'"'+" : ["+strip(strrep(num2str(value,"%.5G,")," ",""),',')+"],");
 end
-function insertpHTimeSeries(file,round,index)
+function insertExtraTimeSeries(file,round,index)
     tab = string(char(9));
     fileID = fopen(file,"r+");
     fseek(fileID,-9,'eof');
     fwrite(fileID,",");
     insertArray(fileID,"pH",round.pH.samples(:,index)');
+    insertArray(fileID,"co2",round.co2.samples(:,index)'*1e6);
     
     fseek(fileID,-1,'eof');
     
