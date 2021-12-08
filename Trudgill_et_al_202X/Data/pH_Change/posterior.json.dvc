@@ -1,5 +1,5 @@
 outs:
-- md5: aff3c6f9073a45b6a94b66fc7f4619a7
-  size: 1681458
+- md5: a4d44f340388e144b7d16208d9404d38
+  size: 482189
   path: posterior.json
   isexec: true
