@@ -2,7 +2,7 @@ clear
 
 %% Load data
 data_directory = "./../../../Data/";
-data = jsondecode(fileread(data_directory+"/pH_Change/pH_Change_Individual_Sensitivity.json"));
+data = jsondecode(fileread(data_directory+"/pH_Change/Individual_Sensitivity.json"));
 
 independent = containers.Map();
 independent("calcium") = data{1}.calcium;
@@ -105,10 +105,10 @@ xlim([min(independent("magnesium")),max(independent("magnesium"))]);
 
 temperature_change_xaxis = axes('Position',(new_position.*[1,1,1,1e-3])+[0,-0.10,0,0],'Color','None');
 hold on
-plot(2,0,'>','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
-plot(2+[-0.55,0.55]*2,[0,0],'-','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
-plot(4.2+1.1*2,0,'<','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
-plot(4.2,0,'|','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2,'MarkerSize',8);
+plot(4.24-1.03,0,'>','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
+plot(4.24-1.03+[-0.52,0.52],[0,0],'-','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
+plot(4.24+1.03,0,'<','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
+plot(4.24,0,'|','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2,'MarkerSize',8);
 set(temperature_change_xaxis,'XColor',colours("temperature_change"));
 current_label = xlabel("\DeltaTemperature",'Position',[21.8,12]);
 set(current_label,'Position',[max(independent("temperature_change"))+(max(independent("temperature_change"))-min(independent("temperature_change")))*0.02,20],'HorizontalAlignment','Left');
@@ -116,10 +116,10 @@ xlim([min(independent("temperature_change")),max(independent("temperature_change
 
 initial_temperature_xaxis = axes('Position',(new_position.*[1,1,1,1e-3])+[0,-0.15,0,0],'Color','None','XAxisLocation','Bottom');
 hold on
-plot(14.8-3.3*2,0,'>','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
-plot(21.4+[-1.65,1.65]*2,[0,0],'-','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
-plot(21.4,0,'<','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
-plot(14.8,0,'|','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2,'MarkerSize',8);
+plot(20.97-6.13,0,'>','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
+plot(20.97+6.13+[-3.07,3.07],[0,0],'-','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
+plot(20.97+6.13,0,'<','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
+plot(20.97,0,'|','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2,'MarkerSize',8);
 set(initial_temperature_xaxis,'XColor',colours("initial_temperature"));
 current_label = xlabel("Initial temperature");
 set(current_label,'Position',[max(independent("initial_temperature"))+(max(independent("initial_temperature"))-min(independent("initial_temperature")))*0.02,20],'HorizontalAlignment','Left');
@@ -155,5 +155,5 @@ current_label = xlabel("CO_2");
 set(current_label,'Position',[(max(independent("co2"))+(max(independent("co2"))-min(independent("co2")))*0.02)*1e6,-20],'HorizontalAlignment','Left');
 xlim([min(independent("co2")),max(independent("co2"))]*1e6);
 
-% exportgraphics(gcf,"./../../Figures/pH_Change_Individual_Sensitivity.png");
+exportgraphics(gcf,"./../../../Figures/pH_Change_Individual_Sensitivity.png");
 

@@ -1,0 +1,7 @@
+{
+	"minimum_pH_change":[-0.345,0.021],
+	"minimum_d11B_change":[-3.36,0.064],
+	"background_pH":[8.26,0.055],
+	"background_d11B":[10.5,0.035],
+	"d11B_sw":[31.9,0.806]
+}

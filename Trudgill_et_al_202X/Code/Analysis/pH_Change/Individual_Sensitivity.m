@@ -16,8 +16,9 @@
 clear all
 
 %% Load Data
-temperature_data = readtable("./../../Data/TJ_Temperature.xlsx");
-boron_data = readtable("./../../Data/TJ_d11B_pH.xlsx");
+data_directory = "./../../../Data/";
+temperature_data = readtable(data_directory+"/Temperature/TJ_d18O_d13C.xlsx");
+boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx");
 
 % Create a map to hold the results
 pH_difference = containers.Map();
@@ -26,8 +27,8 @@ pH_difference = containers.Map();
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-temperature_change = 4.2;
+temperature = 20.98; % From bulk temperatures
+temperature_change = 4.24;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -100,8 +101,8 @@ pH_difference("calcium") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-temperature_change = 4.2;
+temperature = 20.98; % From bulk temperatures
+temperature_change = 4.24;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -174,8 +175,8 @@ pH_difference("magnesium") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-temperature_change = 4.2;
+temperature = 20.98; % From bulk temperatures
+temperature_change = 4.24;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -184,7 +185,7 @@ epsilon = 27.2;
 
 % For minimum 2+-0.55 at 1sd, 4.2+-1.1 at 1sd
 initial_temperature = temperature;
-temperature_changes = 4.2-4:1:4.2+4;
+temperature_changes = 4.24-1.03*1.8:0.1:4.24+1.03*1.8;
 
 %
 background_data = boron_data(1:9,:);
@@ -248,8 +249,8 @@ pH_difference("temperature_change") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-temperature_change = 4.2;
+temperature = 20.98; % From bulk temperatures
+temperature_change = 4.24;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -257,7 +258,7 @@ mg = (28+52)/2; % Horita
 epsilon = 27.2;
 
 % For minimum 21.4+-1.65 at 1sd, 14.8+-3.3 at 1sd
-initial_temperatures = 14.8-12:1:14.8+12;
+initial_temperatures = 20.98-6.13*1.8:1:20.98+6.13*1.8;
 
 %
 background_data = boron_data(1:9,:);
@@ -322,8 +323,8 @@ pH_difference("initial_temperature") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-temperature_change = 4.2;
+temperature = 20.98; % From bulk temperatures
+temperature_change = 4.24;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -397,8 +398,8 @@ pH_difference("saturation_state") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-temperature_change = 4.2;
+temperature = 20.98; % From bulk temperatures
+temperature_change = 4.24;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -472,8 +473,8 @@ pH_difference("co2") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 14.8; % From bulk temperatures
-temperature_change = 4.2;
+temperature = 20.98; % From bulk temperatures
+temperature_change = 4.24;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -543,7 +544,7 @@ pH_change(imag(pH_change)~=0) = NaN;
 pH_difference("epsilon") = pH_change;
 
 %% Saving
-output_file = fopen("./../../Data/pH_Change_Individual_Sensitivity.json","w");
+output_file = fopen(data_directory+"/pH_Change/Individual_Sensitivity.json","w");
 to_encode = [];
 to_encode.calcium = cas;
 to_encode.pH_difference = pH_difference("calcium");

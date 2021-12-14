@@ -1,4 +1,6 @@
 [core]
     remote = private_papers
+[cache]
+    type = copy
 ['remote "private_papers"']
     url = s3://st-andrews-isotope-geochemistry-private/GitHub

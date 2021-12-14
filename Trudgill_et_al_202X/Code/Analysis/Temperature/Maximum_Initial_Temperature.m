@@ -30,6 +30,9 @@ combined_initial_temperature_distribution = Geochemistry_Helpers.Distribution(ba
 maximum_temperature = combined_initial_temperature_distribution.quantile(0.95);
 maximum_temperature_uncertainty = combined_initial_temperature_distribution.standard_deviation();
 
+median_temperature = combined_initial_temperature_distribution.quantile(0.5);
+median_temperature_uncertainty = combined_initial_temperature_distribution.standard_deviation()*2;
+
 %% Save results
 minimum_pH_change_parameters = jsondecode(fileread(data_directory+"/Minimum_pH_Change/Input.json"));
 minimum_pH_change_parameters.initial_temperature = round([maximum_temperature,maximum_temperature_uncertainty],3);

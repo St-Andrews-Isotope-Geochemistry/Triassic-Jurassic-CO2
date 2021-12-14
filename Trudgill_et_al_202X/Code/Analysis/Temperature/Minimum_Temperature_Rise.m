@@ -23,6 +23,9 @@ perturbation.combined_sampler = Geochemistry_Helpers.Sampler(delta_temperature_b
 minimum_temperature_rise = perturbation.combined_sampler.quantile(0.05);
 minimum_temperature_rise_uncertainty = perturbation.combined_sampler.standard_deviation();
 
+average_temperature_rise = perturbation.combined_sampler.quantile(0.5);
+average_temperature_rise_uncertainty = perturbation.combined_sampler.standard_deviation()*2;
+
 %% Save results
 minimum_pH_change_parameters = jsondecode(fileread(data_directory+"/Minimum_pH_Change/Input.json"));
 minimum_pH_change_parameters.temperature_change = round([minimum_temperature_rise,minimum_temperature_rise_uncertainty],3);

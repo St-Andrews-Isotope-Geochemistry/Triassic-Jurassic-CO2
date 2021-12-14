@@ -26,8 +26,8 @@ pH_difference = containers.Map();
 %% Default parameters
 default.saturation_state = 10.7; % From Ridgwell modelling
 default.co2 = 500e-6; % From Witkowski
-default.initial_temperature = 21.4; % From bulk temperatures
-default.temperature_change = 2.0;
+default.initial_temperature = 25.9; %
+default.temperature_change = 3.4;
 default.salinity = 35; % Assumed
 default.pressure = 0; % Assumed?
 default.calcium = 10; % Horita
@@ -36,8 +36,8 @@ default.epsilon = 27.8;
 
 range.saturation_state = 10.4:0.1:11; % From Ridgwell modelling
 range.co2 = 400e-6:50e-6:600e-6; % From Witkowski
-range.initial_temperature = 18.1:0.1:24.7; % From bulk temperatures
-range.temperature_change = 0.9:0.2:3.1;
+range.initial_temperature = 20:0.1:31.8; % From bulk temperatures
+range.temperature_change = 2.4:0.2:4.4;
 range.calcium = 9:0.5:11; % Horita
 range.magnesium = 51:0.5:53; % Horita
 range.epsilon = 27.5:0.1:28.1;
