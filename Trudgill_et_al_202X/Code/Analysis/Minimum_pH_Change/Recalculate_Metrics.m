@@ -20,8 +20,10 @@ pH_change_distribution = Geochemistry_Helpers.Distribution.fromSamples(-1:0.01:1
 %% Statistics
 % Can also calculate metrics to describe the distribution
 pH_change_99 = pH_change_distribution.quantile(0.99);
+pH_change_975 = pH_change_distribution.quantile(0.975);
 pH_change_95 = pH_change_distribution.quantile(0.95);
 pH_change_50 = pH_change_distribution.quantile(0.5);
+pH_change_025 = pH_change_distribution.quantile(0.025);
 
 pH_initial_99 = pH_initial_distribution.quantile(0.99);
 pH_initial_975 = pH_initial_distribution.quantile(0.975);
@@ -46,25 +48,21 @@ ylabel("Probability");
 
 
 %%
-filename = "/Minimum_pH_Change/Minimum_pH_Change_Metrics.json";
+filename = "/Minimum_pH_Change/Metrics.json";
 
 fileID = fopen(data_directory+filename,"w");
 fwrite(fileID,"{"+newline+string(char(9))+'"initial":');
 fwrite(fileID,"{"+newline+string(char(9))+string(char(9))+'"pH_025":'+pH_initial_025+",");
 fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_median":'+pH_initial_50+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_95":'+pH_initial_95+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_975":'+pH_initial_975+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_99":'+pH_initial_99+newline+string(char(9))+"},"+newline);
+fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_975":'+pH_initial_975+newline+string(char(9))+"},"+newline);
 fwrite(fileID,string(char(9))+'"after":');
 fwrite(fileID,"{"+newline+string(char(9))+string(char(9))+'"pH_025":'+pH_after_025+",");
 fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_median":'+pH_after_50+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_95":'+pH_after_95+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_975":'+pH_after_975+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_99":'+pH_after_99+newline+string(char(9))+"},"+newline);
+fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_975":'+pH_after_975+newline+string(char(9))+"},"+newline);
 fwrite(fileID,string(char(9))+'"change":');
-fwrite(fileID,"{"+newline+string(char(9))+string(char(9))+'"pH_median":'+pH_change_50+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_95":'+pH_change_95+",");
-fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_99":'+pH_change_99+newline+string(char(9))+"}"+newline);
+fwrite(fileID,"{"+newline+string(char(9))+string(char(9))+'"pH_025":'+pH_change_025+",");
+fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_median":'+pH_change_50+",");
+fwrite(fileID,newline+string(char(9))+string(char(9))+'"pH_95":'+pH_change_975+newline+string(char(9))+"}"+newline);
 fwrite(fileID,"}");
 fclose(fileID);
 
