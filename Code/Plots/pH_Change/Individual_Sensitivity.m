@@ -34,7 +34,7 @@ colours("co2") = colour_map(6,:);
 colours("epsilon") = colour_map(7,:);
 
 %%
-pH_difference_limits = [-1.1,-0.3];
+pH_difference_limits = [-1.5,-0];
 
 clf
 ca_axis = axes();

@@ -258,7 +258,7 @@ mg = (28+52)/2; % Horita
 epsilon = 27.2;
 
 % For minimum 21.4+-1.65 at 1sd, 14.8+-3.3 at 1sd
-initial_temperatures = 20.98-6.13*1.8:1:20.98+6.13*1.8;
+initial_temperatures = 20.98-25:1:20.98+25;
 
 %
 background_data = boron_data(1:9,:);
