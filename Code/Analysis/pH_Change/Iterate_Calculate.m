@@ -9,7 +9,7 @@ interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.
 % createResultsFile(data_directory+"/pH_Change/posterior.json","posterior",interpolation_ages');
 
 
-for loop_index = 1:50
+for loop_index = 1:1
     clearvars -except loop_index data_directory filename    
     
     run("Calculate.m");
