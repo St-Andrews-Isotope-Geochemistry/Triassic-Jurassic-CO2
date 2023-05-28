@@ -1,7 +1,7 @@
 {
 	"co2":[500,50],
 	"saturation_state":[10.7,0.15],
-	"initial_temperature":[25.9,3.07],
+	"initial_temperature":[31.6,4.68],
 	"temperature_change":[3.4,0.514],
 	"calcium":[8,10],
 	"magnesium":[50,52],
