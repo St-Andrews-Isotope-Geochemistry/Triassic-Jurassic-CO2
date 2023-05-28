@@ -41,8 +41,8 @@ data_directory = "./../../../Data/";
 round_1.number_of_samples = 500;
 
 % Load in the data
-data.boron = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","With_Age");
-data.delta_temperature = readtable(data_directory+"/Temperature/TJ_d18O_d13C.xlsx","Sheet","Delta_Temperature");
+data.boron = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
+data.boron = data.boron((~isnan(data.boron.d11B) & ~isnan(data.boron.d18O)),:);
 data.input_parameters = jsondecode(fileread(data_directory+"/pH_Change/Input.json"));
 data.alkalinity_constraints = jsondecode(fileread(data_directory+"/pH_Change/Alkalinity_Constraints.json"));
 interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.json")).interpolation_ages;
@@ -124,13 +124,13 @@ end
 round_1.d11B_4.samples = round_1.d11B_4.evolutions.d11B_4.value;
 
 % Temperature
-round_1.temperature.change_samplers = Geochemistry_Helpers.Sampler().create([height(data.delta_temperature),1]);
+round_1.temperature.change_samplers = Geochemistry_Helpers.Sampler().create([height(data.boron.delta_temperature),1]);
 for temperature_change_sampler_index = 1:numel(round_1.temperature.change_samplers)
-    round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-20:0.1:60,"Gaussian",[data.delta_temperature.delta_temperature(temperature_change_sampler_index),data.delta_temperature.delta_temperature_uncertainty(temperature_change_sampler_index)],'latin_hypercube_random').normalise();
+    round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-20:0.1:60,"Gaussian",[data.boron.delta_temperature(temperature_change_sampler_index),data.boron.hansen_temperature_uncertainty(temperature_change_sampler_index)],'latin_hypercube_random').normalise();
     if temperature_change_sampler_index==1
-        round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-20:0.1:20,"Gaussian",[data.delta_temperature.delta_temperature(temperature_change_sampler_index),0.01],'latin_hypercube_random').normalise();
+        round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-20:0.1:20,"Gaussian",[data.boron.delta_temperature(temperature_change_sampler_index),0.01],'latin_hypercube_random').normalise();
     end
-    round_1.temperature.change_samplers(temperature_change_sampler_index).location = data.delta_temperature.age(temperature_change_sampler_index);
+    round_1.temperature.change_samplers(temperature_change_sampler_index).location = data.boron.age(temperature_change_sampler_index);
 end
 
 round_1.temperature.change_gaussian_process = Geochemistry_Helpers.GaussianProcess("rbf",interpolation_ages);
