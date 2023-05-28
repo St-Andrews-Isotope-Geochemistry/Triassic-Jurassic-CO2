@@ -7,7 +7,7 @@ TBC
 - [Figure X](#figure-x)
 
 ## Structure
-This repository contains [date](./data), [code](./Code/) and [figures](./figures). Each of these contains more specific documentation describing individual files.
+This repository contains [data](./data), [code](./Code/) and [figures](./figures). Each of these contains more specific documentation describing individual files.
 
 ## Figures
 ### Figure X
