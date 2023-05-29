@@ -5,7 +5,7 @@ data_directory = "./../../../Data/";
 boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","Delta_Temperature");
 
 posterior_file = jsondecode(fileread(data_directory+"/pH_change/posterior.json"));
-interpolation_ages = posterior_file.age;
+interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.json")).interpolation_ages;
 posterior = posterior_file.posterior;
 
 quantile_level = 1:99;

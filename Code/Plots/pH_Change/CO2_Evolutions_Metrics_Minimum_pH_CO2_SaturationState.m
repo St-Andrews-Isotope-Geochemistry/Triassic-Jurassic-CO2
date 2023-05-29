@@ -4,9 +4,9 @@ clear
 data_directory = "./../../../Data/";
 boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","Delta_Temperature");
 
-posterior = jsondecode(fileread(data_directory+"/pH_change/posterior.json")).posterior;
+posterior = jsondecode(fileread(data_directory+"/pH_change/posterior.json"));
 
-interpolation_ages = jsondecode(fileread(data_directory+"/pH_change/posterior.json")).age;
+interpolation_ages =  jsondecode(fileread(data_directory+"/Age/Interpolation_Age.json")).interpolation_ages;
 
 raw_evolutions_metrics = readmatrix(data_directory+"/pH_Change/TJ_CO2_Evolutions_Metrics.csv");
 
@@ -137,6 +137,6 @@ set(subplot_handles(1:2),'XTick',[]);
 set(subplot_handles,'XDir','Reverse');
 
 current_position = get(gcf,'Position');
-set(gcf,'Position',[current_position(1:2),600,650])
+set(gcf,'Position',[current_position(1:2),300,650])
 
 exportgraphics(gcf,"./../../../Figures/d13C_pH_CO2_SaturationState_Evolutions.png","Resolution",600);

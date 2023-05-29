@@ -9,7 +9,7 @@ interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.
 % createResultsFile(data_directory+"/pH_Change/posterior.json","posterior",interpolation_ages');
 
 
-for loop_index = 1:1
+for loop_index = 1:4
     clearvars -except loop_index data_directory filename    
     
     run("Calculate.m");
@@ -84,6 +84,7 @@ function insertExtraTimeSeries(file,round,index)
     fwrite(fileID,",");
     insertArray(fileID,"pH",round.pH.samples(:,index)');
     insertArray(fileID,"co2",round.co2.samples(:,index)'*1e6);
+    insertArray(fileID,"saturation_state",round.saturation_state.samples(:,index)');
     
     fseek(fileID,-1,'eof');
     
