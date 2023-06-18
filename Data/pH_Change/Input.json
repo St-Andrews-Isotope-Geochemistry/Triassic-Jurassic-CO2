@@ -1,10 +1,10 @@
 {
 	"co2":[500,5e+03],
 	"saturation_state":[5,10.7],
-	"initial_temperature":[[0.048,19.2,0.97],[0.052,21.2,0.879]],
+	"initial_temperature":[[0.047,19.2,0.97],[0.053,21.2,0.894]],
 	"calcium":[8,17],
 	"magnesium":[28,52],
-	"epsilon":[[1,26,0.5],[1,27.2,0.3]],
+	"epsilon":[[1,27.2,1],[0.5,26,0.3]],
 	"species_calibration_gradient":[0.25,1],
 	"species_calibration_intercept":[-4,12],
 	"oceanic_pressure":0,

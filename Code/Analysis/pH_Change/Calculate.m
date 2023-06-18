@@ -52,7 +52,7 @@ for alkalinity_shape_index = 1:size(data.alkalinity_constraints.shape,1)
     round_1.alkalinity.shape_samplers(alkalinity_shape_index) = Geochemistry_Helpers.Sampler(-1:0.0001:1,"Gaussian",data.alkalinity_constraints.shape(alkalinity_shape_index,2:3),'latin_hypercube_random').normalise();
     round_1.alkalinity.shape_samplers(alkalinity_shape_index).location = data.alkalinity_constraints.shape(alkalinity_shape_index,1);
 end
-round_1.alkalinity.scaling_sampler = Geochemistry_Helpers.Sampler(0:10:12000,"Flat",data.alkalinity_constraints.scale,"latin_hypercube_random").normalise();
+round_1.alkalinity.scaling_sampler = Geochemistry_Helpers.Sampler(-12000:10:12000,"Flat",data.alkalinity_constraints.scale,"latin_hypercube_random").normalise();
 round_1.alkalinity.scaling_sampler.getSamples(round_1.number_of_samples).shuffle();
 
 round_1.alkalinity_gaussian_process = Geochemistry_Helpers.GaussianProcess("rbf",interpolation_ages);
