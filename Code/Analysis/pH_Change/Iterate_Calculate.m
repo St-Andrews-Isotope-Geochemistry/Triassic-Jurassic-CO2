@@ -9,7 +9,7 @@ interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.
 % createResultsFile(data_directory+"/pH_Change/posterior.json","posterior",interpolation_ages');
 
 
-for loop_index = 1:4
+for loop_index = 1:50
     clearvars -except loop_index data_directory filename    
     
     run("Calculate.m");
@@ -63,7 +63,7 @@ function createResultsFile(file,type,interpolation_ages)
     tab = string(char(9));
     fileID = fopen(file,"w");
     fwrite(fileID,"{"+newline);
-    fwrite(fileID,tab+'"'+"age"+'"'+" : ["+strip(strrep(num2str(interpolation_ages,"%.5G,")," ",""),',')+"],");
+    fwrite(fileID,tab+'"'+"age"+'"'+" : ["+strip(strrep(num2str(interpolation_ages,"%.8G,")," ",""),',')+"],");
     fwrite(fileID,newline+tab+'"'+type+'"'+": ["+newline+tab+"]"+newline+"}");
     fclose(fileID);
 end
