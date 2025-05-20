@@ -4,7 +4,7 @@
 Trudgill <emph>et al.</emph>, 2025, Pulses of ocean acidification at the Triassic–Jurassic boundary, Nature Communications.
 
 ## Structure
-This repository contains [small data files](./data) and [code](./Code/). The code is described in a [separate readme](./code/README.md). Large code files are stored in a separate repository.
+This repository contains [small data files](./Data/) and [code](./Code/). The code is described in a [separate readme](./code/README.md). Large code files are stored in a separate repository.
 
 ## Dependencies
 Matlab dependencies are packaged as submodules within the GitHub repository.
