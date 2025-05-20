@@ -1,4 +1,16 @@
 Literature/
 Manuscript/
+Figures/
+
+Data/Minimum_pH_Change/TJ_Minimum_pH_Ensemble.csv
+
+Data/pH_Change/prior.json
+Data/pH_Change/intermediate.json
+Data/pH_Change/posterior.json
+
+Data/pH_Change/prior_smoother.json
+Data/pH_Change/intermediate_smoother.json
+Data/pH_Change/posterior_smoother.json
+
 *.asv
 ~$*
