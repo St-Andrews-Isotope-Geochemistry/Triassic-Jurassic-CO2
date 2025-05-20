@@ -1,34 +1,19 @@
-# Materials and code associated with Trudgill et al., 202X
+# Materials and code associated with Trudgill et al., 2025
 
 ## Citation
-TBC
-
-## Quick Links
-- [Figure X](#figure-x)
+Trudgill <emph>et al.</emph>, 2025, Pulses of ocean acidification at the Triassic–Jurassic boundary, Nature Communications.
 
 ## Structure
-This repository contains [data](./data), [code](./Code/) and [figures](./figures). Each of these contains more specific documentation describing individual files.
-
-## Figures
-### Figure X
-  ![Figure X][figurex]
-
-Some figures are slightly different to those in the manuscript due to the copy editing process.
+This repository contains [small data files](./data) and [code](./Code/). The code is described in a [separate readme](./code/README.md). Large code files are stored in a separate repository.
 
 ## Dependencies
 Matlab dependencies are packaged as submodules within the GitHub repository.
 
-Command line dependencies are [git](https://git-scm.com/) and [dvc](https://dvc.org/).
-
 ## How to download
 ```
 git init
-git remote add origin https://github.com/St-Andrews-Isotope-Geochemistry/Publications
-git fetch Trudgill_et_al_202X
-git checkout Trudgill_et_al_202X
+git remote add origin https://github.com/St-Andrews-Isotope-Geochemistry/Triassic-Jurassic-CO2
+git pull origin main
 git submodule update --recursive --init
 ```
 
-
-
-[figurex]: ./Figures/xxx.png "xxx"
