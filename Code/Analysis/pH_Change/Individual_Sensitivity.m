@@ -17,8 +17,7 @@ clear all
 
 %% Load Data
 data_directory = "./../../../Data/";
-temperature_data = readtable(data_directory+"/Temperature/TJ_d18O_d13C.xlsx");
-boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx");
+boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx");
 
 % Create a map to hold the results
 pH_difference = containers.Map();
@@ -27,8 +26,8 @@ pH_difference = containers.Map();
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 20.98; % From bulk temperatures
-temperature_change = 4.24;
+temperature = 21.8; % From bulk temperatures
+temperature_change = 3.5;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -101,8 +100,8 @@ pH_difference("calcium") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 20.98; % From bulk temperatures
-temperature_change = 4.24;
+temperature = 21.8; % From bulk temperatures
+temperature_change = 3.5;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -175,8 +174,8 @@ pH_difference("magnesium") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 20.98; % From bulk temperatures
-temperature_change = 4.24;
+temperature = 21.8; % From bulk temperatures
+temperature_change = 3.5;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -185,7 +184,7 @@ epsilon = 27.2;
 
 % For minimum 2+-0.55 at 1sd, 4.2+-1.1 at 1sd
 initial_temperature = temperature;
-temperature_changes = 4.24-1.03*1.8:0.1:4.24+1.03*1.8;
+temperature_changes = 3.5-1.03*1.8:0.1:3.5+1.03*1.8;
 
 %
 background_data = boron_data(1:9,:);
@@ -249,8 +248,8 @@ pH_difference("temperature_change") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 20.98; % From bulk temperatures
-temperature_change = 4.24;
+temperature = 21.8; % From bulk temperatures temperature_change = 3.5; salinity = 35; % Assumed pressure = 0; % Assumed? ca = (10+17)/2; % Horita mg = (28+52)/2; % Horita epsilon = 27.2;
+temperature_change = 3.5;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -258,7 +257,7 @@ mg = (28+52)/2; % Horita
 epsilon = 27.2;
 
 % For minimum 21.4+-1.65 at 1sd, 14.8+-3.3 at 1sd
-initial_temperatures = 20.98-25:1:20.98+25;
+initial_temperatures = 21.8-10:1:21.8+10;
 
 %
 background_data = boron_data(1:9,:);
@@ -323,8 +322,8 @@ pH_difference("initial_temperature") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 20.98; % From bulk temperatures
-temperature_change = 4.24;
+temperature = 21.8; % From bulk temperatures temperature_change = 3.5; salinity = 35; % Assumed pressure = 0; % Assumed? ca = (10+17)/2; % Horita mg = (28+52)/2; % Horita epsilon = 27.2;
+temperature_change = 3.5;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -398,8 +397,8 @@ pH_difference("saturation_state") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 20.98; % From bulk temperatures
-temperature_change = 4.24;
+temperature = 21.8; % From bulk temperatures temperature_change = 3.5; salinity = 35; % Assumed pressure = 0; % Assumed? ca = (10+17)/2; % Horita mg = (28+52)/2; % Horita epsilon = 27.2;
+temperature_change = 3.5;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita
@@ -473,8 +472,8 @@ pH_difference("co2") = pH_change;
 saturation_state_maximum = (3.85+11.85)/2; % From Ridgwell modelling
 co2_minimum = 500e-6; % From Witkowski
 
-temperature = 20.98; % From bulk temperatures
-temperature_change = 4.24;
+temperature = 21.8; % From bulk temperatures temperature_change = 3.5; salinity = 35; % Assumed pressure = 0; % Assumed? ca = (10+17)/2; % Horita mg = (28+52)/2; % Horita epsilon = 27.2;
+temperature_change = 3.5;
 salinity = 35; % Assumed
 pressure = 0; % Assumed?
 ca = (10+17)/2; % Horita

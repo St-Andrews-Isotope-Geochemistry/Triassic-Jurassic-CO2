@@ -6,10 +6,10 @@ clear
 data_directory = "./../../../Data/";
 number_of_samples = 10000;
 
-import_options = detectImportOptions(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx",'NumHeaderLines',2,"Sheet","Temperature_Calibrations");
-import_options.VariableNamesRange = "A1:R1";
-boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx",import_options);
-background_data = boron_data(boron_data.age>=boron_data.age(9),:);
+boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
+boron_data = boron_data((~boron_data.diagenetic_alteration & ~boron_data.al_ca_reject),:);
+
+background_data = boron_data(boron_data.age>=boron_data.age(8),:);
 
 %%
 temperature_bin_width = 0.1;

@@ -7,7 +7,7 @@ data_directory = "./../../../Data/";
 number_of_samples = 10000;
 
 boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
-background_temperature_data = boron_data(boron_data.age>=boron_data.age(9),:);
+background_temperature_data = boron_data(boron_data.age>=boron_data.age(8),:);
 
 %%
 background_temperature_bin_width = 0.1;

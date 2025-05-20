@@ -2,30 +2,38 @@ clear
 
 %% Load data
 data_directory = "./../../../Data/";
-boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","Delta_Temperature");
+boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
 
 posterior = jsondecode(fileread(data_directory+"/pH_change/posterior.json"));
 
 interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.json")).interpolation_ages;
+age_counter = 0;
+for age = round(linspace(min(boron_data.age),max(boron_data.age),80),4)
+    matching_age = find(interpolation_ages-age==0);
+    if ~isnan(matching_age)
+        age_counter = age_counter+1;
+        age_location(age_counter) = matching_age;
+    end
+end
 
-raw_evolutions_metrics = readmatrix(data_directory+"/pH_Change/TJ_CO2_Evolutions_Metrics.csv");
+raw_evolutions_metrics = readmatrix(data_directory+"/pH_Change/Metrics_standard_smooth.csv");
 
 number_of_quantiles = size(raw_evolutions_metrics,1)/4;
-d11B_measured_quantiles = raw_evolutions_metrics(1:number_of_quantiles,:)';
-pH_quantiles = raw_evolutions_metrics(number_of_quantiles+1:2*number_of_quantiles,:)';
-saturation_state_quantiles = raw_evolutions_metrics(2*number_of_quantiles+1:3*number_of_quantiles,:)';
-co2_quantiles = raw_evolutions_metrics(3*number_of_quantiles+1:end,:)';
+d11B_measured_quantiles = raw_evolutions_metrics(1:number_of_quantiles,age_location)';
+pH_quantiles = raw_evolutions_metrics(number_of_quantiles+1:2*number_of_quantiles,age_location)';
+saturation_state_quantiles = raw_evolutions_metrics(2*number_of_quantiles+1:3*number_of_quantiles,age_location)';
+co2_quantiles = raw_evolutions_metrics(3*number_of_quantiles+1:end,age_location)';
 
 % raw_minimum_metrics = jsondecode(fileread(data_directory+"/Minimum_pH_Change/Metrics.json"));
 raw_minimum_metrics = readmatrix(data_directory+"/Minimum_pH_Change/Quantiles.csv");
-raw_evolutions_metrics_delta = readmatrix(data_directory+"/pH_Change/Metrics_Delta.csv");
+raw_evolutions_metrics_delta = readmatrix(data_directory+"/pH_Change/Metrics_Delta_standard_smooth.csv");
 
 minimum_pH_change_d11B_measured = raw_minimum_metrics(1:2,:);
 minimum_pH_change_pH = raw_minimum_metrics(3:4,:);
 
-delta_pH_quantiles = raw_evolutions_metrics_delta(1:number_of_quantiles,:)';
-delta_saturation_state_quantiles = raw_evolutions_metrics_delta(number_of_quantiles+1:2*number_of_quantiles,:)';
-delta_co2_quantiles = raw_evolutions_metrics_delta(2*number_of_quantiles+1:end,:)';
+delta_pH_quantiles = raw_evolutions_metrics_delta(1:number_of_quantiles,age_location)';
+delta_saturation_state_quantiles = raw_evolutions_metrics_delta(number_of_quantiles+1:2*number_of_quantiles,age_location)';
+delta_co2_quantiles = raw_evolutions_metrics_delta(2*number_of_quantiles+1:end,age_location)';
 
 %% Make a plot like figure 2 in the paper
 all_pH.colour = [0.6,0,0];
@@ -76,9 +84,9 @@ hold on
 for quantile_index = 1:floor(number_of_quantiles/2)
     upper = pH_quantiles(:,100-quantile_index);
     lower = pH_quantiles(:,quantile_index);
-    patch([interpolation_ages;flipud(interpolation_ages)],[lower;flipud(upper)],all_pH.colour,'FaceAlpha',0.026,'EdgeColor','None');
+    patch([interpolation_ages(age_location);flipud(interpolation_ages(age_location))],[lower;flipud(upper)],all_pH.colour,'FaceAlpha',0.026,'EdgeColor','None');
 end
-pH_handles(1) = plot(interpolation_ages,pH_quantiles(:,ceil(number_of_quantiles/2)),'-','Color',all_pH.colour,'MarkerSize',marker_size,'LineWidth',line_width,'MarkerFaceColor',medium_initial_co2.colour);
+pH_handles(1) = plot(interpolation_ages(age_location),pH_quantiles(:,ceil(number_of_quantiles/2)),'-','Color',all_pH.colour,'MarkerSize',marker_size,'LineWidth',line_width,'MarkerFaceColor',medium_initial_co2.colour);
 
 
 for quantile_index = 1:floor(number_of_quantiles/2)
@@ -94,32 +102,34 @@ plot(initial_age,[minimum_pH_change_pH(1,ceil(number_of_quantiles/2)),minimum_pH
 pH_handles(2) = plot(perturbation_age,[minimum_pH_change_pH(2,ceil(number_of_quantiles/2)),minimum_pH_change_pH(2,ceil(number_of_quantiles/2))],'Color','k','LineWidth',1);
 
 % patch([initial_age,fliplr(initial_age)],[raw_minimum_metrics.initial.pH_025,raw_minimum_metrics.initial.pH_025,raw_minimum_metrics.initial.pH_975,raw_minimum_metrics.initial.pH_975],[0.7,0.7,0.7],'FaceAlpha',0.8,'EdgeColor','None');
-% 
+
 % patch([perturbation_age,fliplr(perturbation_age)],[raw_minimum_metrics.after.pH_025,raw_minimum_metrics.after.pH_025,raw_minimum_metrics.after.pH_975,raw_minimum_metrics.after.pH_975],[0.7,0.7,0.7],'FaceAlpha',0.8,'EdgeColor','None');
 
 ylabel("pH");
 
-legend_handle = legend(pH_handles,["All evolutions","Minimum \DeltapH"],'Location','SouthWest');
+% legend_handle = legend(pH_handles,["All evolutions","Minimum \DeltapH"],'Location','SouthWest');
 
 subplot_handles(2) = subplot(3,1,2);
 hold on
 for quantile_index = 1:floor(number_of_quantiles/2)
     upper = delta_co2_quantiles(:,100-quantile_index);
     lower = delta_co2_quantiles(:,quantile_index);
-    patch([interpolation_ages;flipud(interpolation_ages)],[lower;flipud(upper)],all_pH.colour,'FaceAlpha',0.026,'EdgeColor','None');
+    patch([interpolation_ages(age_location);flipud(interpolation_ages(age_location))],[lower;flipud(upper)],all_pH.colour,'FaceAlpha',0.026,'EdgeColor','None');
 end
-plot(interpolation_ages,(delta_co2_quantiles(:,ceil(number_of_quantiles/2))),'-','Color',all_pH.colour,'MarkerSize',marker_size,'LineWidth',line_width,'MarkerFaceColor',medium_initial_co2.colour);
+plot(interpolation_ages(age_location),(delta_co2_quantiles(:,ceil(number_of_quantiles/2))),'-','Color',all_pH.colour,'MarkerSize',marker_size,'LineWidth',line_width,'MarkerFaceColor',medium_initial_co2.colour);
 
-ylabel("\DeltaCO_2 (doublings)");
+ylabel("CO_2 (ppm)");
+current_axis = gca;
+current_axis.YAxis.Exponent = 0;
 
 subplot_handles(3) = subplot(3,1,3);
 hold on
 for quantile_index = 1:floor(number_of_quantiles/2)
     upper = saturation_state_quantiles(:,100-quantile_index);
     lower = saturation_state_quantiles(:,quantile_index);
-    patch([interpolation_ages;flipud(interpolation_ages)],[lower;flipud(upper)],all_pH.colour,'FaceAlpha',0.026,'EdgeColor','None');
+    patch([interpolation_ages(age_location);flipud(interpolation_ages(age_location))],[lower;flipud(upper)],all_pH.colour,'FaceAlpha',0.026,'EdgeColor','None');
 end
-plot(interpolation_ages,saturation_state_quantiles(:,ceil(number_of_quantiles/2)),'-','Color',all_pH.colour,'MarkerSize',marker_size,'LineWidth',line_width,'MarkerFaceColor',medium_initial_co2.colour);
+plot(interpolation_ages(age_location),saturation_state_quantiles(:,ceil(number_of_quantiles/2)),'-','Color',all_pH.colour,'MarkerSize',marker_size,'LineWidth',line_width,'MarkerFaceColor',medium_initial_co2.colour);
 
 ylim([0,12]);
 set(gca,'YTick',0:2:12,'YTickLabels',num2str((0:2:12)'));

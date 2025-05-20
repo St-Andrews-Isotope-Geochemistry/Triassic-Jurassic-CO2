@@ -42,7 +42,7 @@ round_1.number_of_samples = 500;
 
 % Load in the data
 data.boron = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
-data.boron = data.boron((~isnan(data.boron.d11B) & ~isnan(data.boron.d18O)),:);
+data.boron = data.boron((~data.boron.diagenetic_alteration & ~data.boron.al_ca_reject),:);
 data.input_parameters = jsondecode(fileread(data_directory+"/pH_Change/Input.json"));
 data.alkalinity_constraints = jsondecode(fileread(data_directory+"/pH_Change/Alkalinity_Constraints.json"));
 interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.json")).interpolation_ages;
@@ -67,8 +67,10 @@ round_1.alkalinity_gaussian_process.getSamples(round_1.number_of_samples);
 round_1.co2.initial_sampler = Geochemistry_Helpers.Sampler(0:100e-6:10000e-6,"Flat",data.input_parameters.co2/1e6,"latin_hypercube_random").normalise();
 round_1.saturation_state.initial_sampler = Geochemistry_Helpers.Sampler(0:0.1:12,"Flat",data.input_parameters.saturation_state,"latin_hypercube_random").normalise();
 
-round_1.temperature.initial_samplers = [Geochemistry_Helpers.Sampler(-10:0.1:30,"Gaussian",data.input_parameters.initial_temperature(1,2:3),"latin_hypercube_random").normalise(data.input_parameters.initial_temperature(1,1)),Geochemistry_Helpers.Sampler(-10:0.1:30,"Gaussian",data.input_parameters.initial_temperature(2,2:3),"latin_hypercube_random").normalise(data.input_parameters.initial_temperature(2,1))];
-round_1.temperature.initial_sampler = Geochemistry_Helpers.Sampler(-10:0.1:30,"Manual",round_1.temperature.initial_samplers(1).probabilities+round_1.temperature.initial_samplers(2).probabilities,"latin_hypercube_random").normalise();
+% At a particular tiepoint
+round_1.temperature.tiepoint_samplers = [Geochemistry_Helpers.Sampler(-10:0.1:30,"Gaussian",data.input_parameters.tiepoint_temperature(1,2:3),"latin_hypercube_random").normalise(data.input_parameters.tiepoint_temperature(1,1)),...
+                                         Geochemistry_Helpers.Sampler(-10:0.1:30,"Gaussian",data.input_parameters.tiepoint_temperature(2,2:3),"latin_hypercube_random").normalise(data.input_parameters.tiepoint_temperature(2,1))];
+round_1.temperature.tiepoint_sampler = Geochemistry_Helpers.Sampler(-10:0.1:30,"Manual",round_1.temperature.tiepoint_samplers(1).probabilities+round_1.temperature.tiepoint_samplers(2).probabilities,"latin_hypercube_random").normalise();
 
 % Constant across interval
 round_1.calcium.sampler = Geochemistry_Helpers.Sampler(0:0.1:20,"Flat",data.input_parameters.calcium,"latin_hypercube_random").normalise();
@@ -87,7 +89,7 @@ round_1.salinity = data.input_parameters.salinity;
 % Get the samples
 round_1.co2.initial_sampler.getSamples(round_1.number_of_samples).shuffle();
 round_1.saturation_state.initial_sampler.getSamples(round_1.number_of_samples).shuffle();
-round_1.temperature.initial_sampler.getSamples(round_1.number_of_samples).shuffle();
+round_1.temperature.tiepoint_sampler.getSamples(round_1.number_of_samples).shuffle();
 round_1.calcium.sampler.getSamples(round_1.number_of_samples).shuffle();
 round_1.magnesium.sampler.getSamples(round_1.number_of_samples).shuffle();
 
@@ -126,18 +128,18 @@ round_1.d11B_4.samples = round_1.d11B_4.evolutions.d11B_4.value;
 % Temperature
 round_1.temperature.change_samplers = Geochemistry_Helpers.Sampler().create([height(data.boron.delta_temperature),1]);
 for temperature_change_sampler_index = 1:numel(round_1.temperature.change_samplers)
-    round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-20:0.1:60,"Gaussian",[data.boron.delta_temperature(temperature_change_sampler_index),data.boron.hansen_temperature_uncertainty(temperature_change_sampler_index)],'latin_hypercube_random').normalise();
-    if temperature_change_sampler_index==1
-        round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-20:0.1:20,"Gaussian",[data.boron.delta_temperature(temperature_change_sampler_index),0.01],'latin_hypercube_random').normalise();
+    round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-20:0.1:60,"Gaussian",[data.boron.delta_temperature(temperature_change_sampler_index),data.boron.delta_temperature_uncertainty(temperature_change_sampler_index)],'latin_hypercube_random').normalise();
+    if temperature_change_sampler_index==numel(round_1.temperature.change_samplers)
+        round_1.temperature.change_samplers(temperature_change_sampler_index) = Geochemistry_Helpers.Sampler(-10:0.01:10,"Gaussian",[data.boron.delta_temperature(temperature_change_sampler_index),0.01],'latin_hypercube_random').normalise();
     end
     round_1.temperature.change_samplers(temperature_change_sampler_index).location = data.boron.age(temperature_change_sampler_index);
 end
 
 round_1.temperature.change_gaussian_process = Geochemistry_Helpers.GaussianProcess("rbf",interpolation_ages);
 round_1.temperature.change_gaussian_process.observations = round_1.temperature.change_samplers';
-round_1.temperature.change_gaussian_process.runKernel([2,20000/1e6],1);
+round_1.temperature.change_gaussian_process.runKernel([10,0.02],1);
 round_1.temperature.change_gaussian_process.getSamples(round_1.number_of_samples);
-round_1.temperature.samples = round_1.temperature.initial_sampler.samples + round_1.temperature.change_gaussian_process.samples';
+round_1.temperature.samples = round_1.temperature.tiepoint_sampler.samples + round_1.temperature.change_gaussian_process.samples';
 
 clearvars alkalinity_shape_index temperature_change_sampler_index evolution_index d11B_sampler_index
 
@@ -351,44 +353,46 @@ round_3.oceanic_pressure = round_2.oceanic_pressure;
 round_3.atmospheric_pressure = round_2.atmospheric_pressure;
 
 %%
-round_3.d11B_CO2.evolutions = BuCC.d11BCO2().create([numel(interpolation_ages),size(round_3.alkalinity.samples,2)]);
-for evolution_index = 1:size(round_3.alkalinity.samples,2)
-    % Species calibration
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).species_calibration.assignToAll("coefficients",[round_3.species_calibration.gradient_samples(evolution_index),round_3.species_calibration.intercept_samples(evolution_index)]');
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).species_calibration.d11B_measured.assignToEach("value",round_3.d11B_measured.samples(:,evolution_index));
-    
-    % Boron
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).boron.pH.assignToAll("pValue",NaN);
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).boron.d11B_sw.assignToAll("value",round_3.d11B_sw.samples(evolution_index));
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).boron.assignToAll("epsilon",round_3.epsilon.samples(evolution_index));
-    
-    % Carbonate chemistry
-    % Main parameters
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.atmospheric_co2.assignToAll("partial_pressure",NaN);
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToEach("alkalinity",round_3.alkalinity.samples(:,evolution_index));
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("units"," mol/kg");
-    
-    % Ancillary
-    % Variable
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToEach("temperature",round_3.temperature.samples(:,evolution_index));
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("calcium",round_3.calcium.samples(evolution_index));
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("magnesium",round_3.magnesium.samples(evolution_index));
-    
-    % Constant
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("salinity",round_3.salinity);
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("oceanic_pressure",round_3.oceanic_pressure);
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("atmospheric_pressure",round_3.atmospheric_pressure);
-    
-    % Create a MyAMI object
-%     myami = MyAMI.MyAMI("Precalculated",true);
-    round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.equilibrium_coefficients.assignToAll("MyAMI",myami);
-    
-    % Do carbonate chemistry calculations
-    round_3.d11B_CO2.evolutions(:,evolution_index).calculate();
-end
+if round_3.number_of_samples~=0    
+    round_3.d11B_CO2.evolutions = BuCC.d11BCO2().create([numel(interpolation_ages),size(round_3.alkalinity.samples,2)]);
+    for evolution_index = 1:size(round_3.alkalinity.samples,2)
+        % Species calibration
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).species_calibration.assignToAll("coefficients",[round_3.species_calibration.gradient_samples(evolution_index),round_3.species_calibration.intercept_samples(evolution_index)]');
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).species_calibration.d11B_measured.assignToEach("value",round_3.d11B_measured.samples(:,evolution_index));
 
-round_3.co2.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.atmospheric_co2.x;
-round_3.saturation_state.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.saturation_state;
-round_3.alkalinity.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.alkalinity;
-round_3.pH.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.pH.pValue;
-round_3.d11B_sw.samples = round_3.d11B_CO2.evolutions.boron.d11B_sw.value;
+        % Boron
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).boron.pH.assignToAll("pValue",NaN);
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).boron.d11B_sw.assignToAll("value",round_3.d11B_sw.samples(evolution_index));
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).boron.assignToAll("epsilon",round_3.epsilon.samples(evolution_index));
+
+        % Carbonate chemistry
+        % Main parameters
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.atmospheric_co2.assignToAll("partial_pressure",NaN);
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToEach("alkalinity",round_3.alkalinity.samples(:,evolution_index));
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("units"," mol/kg");
+
+        % Ancillary
+        % Variable
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToEach("temperature",round_3.temperature.samples(:,evolution_index));
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("calcium",round_3.calcium.samples(evolution_index));
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("magnesium",round_3.magnesium.samples(evolution_index));
+
+        % Constant
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("salinity",round_3.salinity);
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("oceanic_pressure",round_3.oceanic_pressure);
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.assignToAll("atmospheric_pressure",round_3.atmospheric_pressure);
+
+        % Create a MyAMI object
+    %     myami = MyAMI.MyAMI("Precalculated",true);
+        round_3.d11B_CO2.evolutions(:,evolution_index,1).carbonate_chemistry.equilibrium_coefficients.assignToAll("MyAMI",myami);
+
+        % Do carbonate chemistry calculations
+        round_3.d11B_CO2.evolutions(:,evolution_index).calculate();
+    end
+
+    round_3.co2.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.atmospheric_co2.x;
+    round_3.saturation_state.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.saturation_state;
+    round_3.alkalinity.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.alkalinity;
+    round_3.pH.samples = round_3.d11B_CO2.evolutions.carbonate_chemistry.pH.pValue;
+    round_3.d11B_sw.samples = round_3.d11B_CO2.evolutions.boron.d11B_sw.value;
+end

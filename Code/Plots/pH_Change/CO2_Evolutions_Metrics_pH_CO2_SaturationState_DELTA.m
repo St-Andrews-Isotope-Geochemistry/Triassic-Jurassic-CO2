@@ -5,7 +5,7 @@ data_directory = "./../../../Data/";
 boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","Delta_Temperature");
 interpolation_ages = unique(sort([boron_data.age',linspace(min(boron_data.age),max(boron_data.age),80)]));
 
-raw_evolutions_metrics = readmatrix(data_directory+"/pH_Change/TJ_CO2_Evolutions_Metrics_DELTA.csv");
+raw_evolutions_metrics = readmatrix(data_directory+"/pH_Change/Metrics_Delta_standard_smooth.csv");
 
 low_initial_co2.pH_quantiles = raw_evolutions_metrics(1:3,:)';
 medium_initial_co2.pH_quantiles = raw_evolutions_metrics(4:6,:)';

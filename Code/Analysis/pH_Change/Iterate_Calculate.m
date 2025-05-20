@@ -1,5 +1,5 @@
 % Run TJ CO2
-% clear
+clear
 data_directory = "./../../../Data/";
 interpolation_ages = jsondecode(fileread(data_directory+"/Age/Interpolation_Age.json")).interpolation_ages;
 
@@ -29,6 +29,7 @@ for loop_index = 1:50
     end
     
     fclose("all");
+    disp(loop_index);
 end
 
 %%

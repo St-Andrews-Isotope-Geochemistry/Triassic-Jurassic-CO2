@@ -6,6 +6,8 @@ data_directory = "./../../../Data/";
 number_of_samples = 10000;
 
 boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
+boron_data = boron_data((~boron_data.diagenetic_alteration & ~boron_data.al_ca_reject),:);
+
 boron_data_sorted = sortrows(boron_data,"d11B");
 
 delta_temperature_bin_edges = -20:0.1:20;

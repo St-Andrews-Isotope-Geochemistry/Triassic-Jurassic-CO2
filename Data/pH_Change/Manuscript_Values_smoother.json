@@ -1,0 +1,15 @@
+{
+	"pH_change_0025_quantile":-0.35,
+	"pH_change_0500_quantile":-0.73,
+	"pH_change_0975_quantile":-1.23,
+	"co2_change_005_quantile":1492.683,
+	"initial_co2":[930,4.9e+03],
+	"species_calibration_gradient":0.604,
+	"pH_change_0050_quantile":-0.411,
+	"pH_change_0950_quantile":-1.141,
+	"co2_doublings_0025_quantile":0.975,
+	"co2_doublings_0500_quantile":1.257,
+	"co2_doublings_0975_quantile":5.135,
+	"co2_doublings_0050_quantile":1.257,
+	"co2_doublings_0950_quantile":4.791
+}

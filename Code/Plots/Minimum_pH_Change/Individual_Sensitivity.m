@@ -105,10 +105,10 @@ xlim([min(independent("magnesium")),max(independent("magnesium"))]);
 
 temperature_change_xaxis = axes('Position',(new_position.*[1,1,1,1e-3])+[0,-0.10,0,0],'Color','None');
 hold on
-plot(3.4,0,'>','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
+plot(3.0,0,'>','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
 % plot(2+[-0.55,0.55]*2,[0,0],'-','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
-plot(3.4+0.51*2,0,'<','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
-plot(3.4,0,'|','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2,'MarkerSize',8);
+% plot(2.0+1.0*2,0,'<','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2);
+% plot(2.0,0,'|','Color',colours("temperature_change"),'MarkerFaceColor',colours("temperature_change"),'Parent',temperature_change_xaxis,'LineWidth',2,'MarkerSize',8);
 set(temperature_change_xaxis,'XColor',colours("temperature_change"));
 current_label = xlabel("\DeltaTemperature",'Position',[21.8,12]);
 set(current_label,'Position',[max(independent("temperature_change"))+(max(independent("temperature_change"))-min(independent("temperature_change")))*0.02,20],'HorizontalAlignment','Left');
@@ -116,10 +116,10 @@ xlim([min(independent("temperature_change")),max(independent("temperature_change
 
 initial_temperature_xaxis = axes('Position',(new_position.*[1,1,1,1e-3])+[0,-0.15,0,0],'Color','None','XAxisLocation','Bottom');
 hold on
-plot(25.9-3.3*2,0,'>','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
+plot(29.2-3.3*2,0,'>','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
 % plot(21.4+[-1.65,1.65]*2,[0,0],'-','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
-plot(25.9,0,'<','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
-plot(25.9,0,'|','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2,'MarkerSize',8);
+plot(29.2,0,'<','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2);
+plot(29.2,0,'|','Color',colours("initial_temperature"),'MarkerFaceColor',colours("initial_temperature"),'Parent',initial_temperature_xaxis,'LineWidth',2,'MarkerSize',8);
 set(initial_temperature_xaxis,'XColor',colours("initial_temperature"));
 current_label = xlabel("Initial temperature");
 set(current_label,'Position',[max(independent("initial_temperature"))+(max(independent("initial_temperature"))-min(independent("initial_temperature")))*0.02,20],'HorizontalAlignment','Left');
@@ -155,5 +155,5 @@ current_label = xlabel("CO_2");
 set(current_label,'Position',[(max(independent("co2"))+(max(independent("co2"))-min(independent("co2")))*0.02)*1e6,-20],'HorizontalAlignment','Left');
 xlim([min(independent("co2")),max(independent("co2"))]*1e6);
 
-% exportgraphics(gcf,"./../../Figures/Minimum_pH_Change_Individual_Sensitivity.png");
+exportgraphics(gcf,"./../../../Figures/Minimum_pH_Change_Individual_Sensitivity.png");
 

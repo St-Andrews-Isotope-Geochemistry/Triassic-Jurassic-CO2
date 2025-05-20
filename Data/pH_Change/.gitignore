@@ -1,3 +1,7 @@
 /prior.json
 /intermediate.json
 /posterior.json
+
+/prior_smoother.json
+/intermediate_smoother.json
+/posterior_smoother.json

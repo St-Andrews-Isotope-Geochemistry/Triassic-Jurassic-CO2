@@ -5,8 +5,10 @@ clear
 data_directory = "./../../../Data/";
 number_of_samples = 10000;
 
-boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","Delta_Temperature");
-background_boron_data = boron_data(1:9,:);
+boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
+boron_data = boron_data((~boron_data.diagenetic_alteration & ~boron_data.al_ca_reject),:);
+
+background_boron_data = boron_data(1:8,:);
 
 %%
 background_boron_bin_width = 0.001;
@@ -20,6 +22,7 @@ end
 combined_initial_boron_distribution = Geochemistry_Helpers.Distribution(background_boron_bin_edges,"Manual",prod(reshape(background_boron_samplers.probabilities,[],numel(background_boron_bin_midpoints)))).normalise();
 
 %% Maximum temperature
+median_boron = combined_initial_boron_distribution.quantile(0.5);
 minimum_boron = combined_initial_boron_distribution.quantile(0.05);
 minimum_boron_uncertainty = combined_initial_boron_distribution.standard_deviation();
 

@@ -2,7 +2,7 @@ clear
 
 %% Load data
 data_directory = "./../../../Data/";
-boron_data = readtable(data_directory+"/Boron/TJ_d11B.xlsx","Sheet","Delta_Temperature");
+boron_data = readtable(data_directory+"/Boron/TJ_d11B_d18O_d13C.xlsx","Sheet","Temperature_Calibrations");
 
 posterior_file = jsondecode(fileread(data_directory+"/pH_change/posterior.json"));
 interpolation_ages = posterior_file.age;
@@ -33,7 +33,7 @@ evolutions.saturation_state_quantiles = evolutions.saturation_state_distribution
 
 
 %%
-filename = "/pH_Change/TJ_CO2_Evolutions_Metrics.csv";
+filename = "/pH_Change/Metrics.csv";
 
 writematrix(evolutions.d11B_measured_quantiles',data_directory+filename,'WriteMode','overwrite');
 writematrix(evolutions.pH_quantiles',data_directory+filename,'WriteMode','append');
